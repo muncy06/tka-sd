@@ -206,7 +206,7 @@
 
     <div class="header-bg">
         <div class="header-content">
-            <img src="logo.png" alt="Logo Sekolah">
+            <img src="logo.png" alt="Logo Sekolah" onerror="this.src='https://via.placeholder.com/60/ffffff/000000?text=Logo'">
             <div class="header-text">
                 <h1>SD INPRES BINANGA 1</h1>
                 <p>UJIAN SEKOLAH CBT 2026</p>
@@ -247,9 +247,9 @@
 
     <script>
         // =========================================================================
-        // TEMPAT MEMASUKKAN LINK GOOGLE APPS SCRIPT (WEB APP URL)
+        // URL GOOGLE APPS SCRIPT ANDA (JANGAN DIUBAH LAGI JIKA SUDAH BENAR)
         // =========================================================================
-        const scriptURL = 'ISI_LINK_APPS_SCRIPT_DISINI_NANTI'; 
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxVhowRAW6F_fXDIrMfzDghiqswer4QXY4SVr49MKYLKFw0Q__ODW9nHXkorpuBAMyMCA/exec'; 
         // =========================================================================
 
         function togglePasswordVisibility() {
@@ -276,12 +276,6 @@
             const nisn = document.getElementById("username").value.trim();
             const password = document.getElementById("password").value.trim();
 
-            // Cek apakah URL Apps Script sudah diisi atau masih default
-            if(scriptURL === 'ISI_LINK_APPS_SCRIPT_DISINI_NANTI') {
-                alert("Sistem belum terhubung ke database. Harap masukkan URL Web App Google Apps Script di dalam kode (baris const scriptURL).");
-                return;
-            }
-
             // Ubah tombol jadi status loading agar user tidak klik berkali-kali
             btnLogin.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Memeriksa...';
             btnLogin.disabled = true;
@@ -292,7 +286,13 @@
             formData.append('password', password);
 
             fetch(scriptURL, { method: 'POST', body: formData })
-                .then(response => response.json())
+                .then(response => {
+                    // Cek jika response tidak ok (misalnya karena CORS atau error server)
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     btnLogin.innerHTML = 'Login';
                     btnLogin.disabled = false;
@@ -300,11 +300,12 @@
                     if (data.status === 'success') {
                         // Jika berhasil, simpan data sesi ke localStorage
                         localStorage.setItem('isLoggedIn', 'true');
+                        localStorage.setItem('nisnSiswa', nisn);      // <---- TAMBAHKAN BARIS INI
                         localStorage.setItem('namaSiswa', data.nama);
                         localStorage.setItem('kelasSiswa', data.kelas);
                         localStorage.setItem('role', data.role); // 'siswa' atau 'admin'
 
-                        // Jika admin, arahkan ke dashboard admin. Jika siswa, ke halaman ujian.
+                        // Redirect ke halaman yang sesuai
                         if (data.role === 'admin') {
                             window.location.href = 'admin.html';
                         } else {
@@ -318,8 +319,8 @@
                 .catch(error => {
                     btnLogin.innerHTML = 'Login';
                     btnLogin.disabled = false;
-                    alert("Terjadi kesalahan jaringan atau server. Pastikan koneksi internet stabil.");
-                    console.error('Error!', error.message);
+                    alert("Gagal terhubung ke database. Jika Anda membuka file ini langsung dari komputer (file:///...), cobalah gunakan ekstensi 'Live Server' di VS Code atau upload ke hosting (seperti GitHub Pages) terlebih dahulu.");
+                    console.error('Error:', error);
                 });
         });
     </script>
