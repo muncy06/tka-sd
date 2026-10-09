@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Ujian CBT - SD Inpres Binanga 1 Mamuju</title>
+    
+    <!-- Menggunakan Font Google 'Poppins' agar terlihat profesional dan modern -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Menggunakan FontAwesome untuk Icon (User, Lock, Eye, Book) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Bagian Header Biru dengan Efek Melengkung */
+        .header-bg {
+            background: linear-gradient(135deg, #1a5ca6 0%, #0d47a1 100%);
+            width: 100%;
+            height: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 30px;
+            position: absolute;
+            top: 0;
+            z-index: 1;
+            /* Membuat lengkungan di bagian bawah */
+            border-bottom-left-radius: 50% 10%;
+            border-bottom-right-radius: 50% 10%;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            color: white;
+            gap: 15px;
+        }
+
+        .header-content img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            background-color: white;
+            border-radius: 50%;
+            padding: 5px;
+        }
+
+        .header-text h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: -5px;
+        }
+
+        .header-text p {
+            font-size: 14px;
+            font-weight: 400;
+            color: #d1e4fb;
+            letter-spacing: 2px;
+        }
+
+        /* Kotak Login */
+        .login-wrapper {
+            position: relative;
+            z-index: 2;
+            margin-top: 130px;
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .contact-info {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
+        .contact-info b {
+            color: #333;
+        }
+
+        .login-card h2 {
+            color: #444;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 26px;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        /* Styling Form Input */
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group i.icon-left {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 14px;
+        }
+
+        .input-group input, 
+        .input-group select {
+            width: 100%;
+            padding: 12px 40px; /* Space untuk icon di kiri dan kanan */
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #333;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            border-color: #0d47a1;
+            box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.1);
+        }
+
+        .input-group input::placeholder {
+            color: #aaa;
+        }
+
+        select {
+            appearance: none;
+            cursor: pointer;
+            color: #aaa !important; /* Agar warna placeholder select mirip text biasa */
+        }
+        
+        select:valid {
+            color: #333 !important;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .toggle-password:hover {
+            color: #555;
+        }
+
+        /* Tombol Login */
+        .btn-login {
+            width: 100%;
+            background-color: #0d6efd;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            background-color: #0b5ed7;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .footer p {
+            margin-bottom: 5px;
+        }
+
+        /* Responsif untuk HP */
+        @media (max-width: 500px) {
+            .header-text h1 { font-size: 18px; }
+            .header-text p { font-size: 12px; }
+            .login-card { padding: 30px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Biru -->
+    <div class="header-bg">
+        <div class="header-content">
+            <img src="logo.png" alt="Logo Sekolah">
+            <div class="header-text">
+                <h1>SD INPRES BINANGA 1</h1>
+                <p>UJIAN SEKOLAH CBT 2026</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container Form Login -->
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="contact-info">
+                LUPA USERNAME / PASSWORD ? : hubungi <b>Admin Sekolah</b>
+            </div>
+            
+            <h2>Selamat Datang</h2>
+            <p class="subtitle">Silakan login menggunakan username dan password yang anda miliki</p>
+
+            <form id="formLogin">
+                <!-- Username (NISN) -->
+                <div class="input-group">
+                    <i class="fas fa-user icon-left"></i>
+                    <input type="text" id="username" placeholder="Username (NISN)" required autocomplete="off">
+                </div>
+
+                <!-- Password (Kode Unik) -->
+                <div class="input-group">
+                    <i class="fas fa-lock icon-left"></i>
+                    <input type="password" id="password" placeholder="Password" required>
+                    <i class="fas fa-eye toggle-password" id="toggleBtn" onclick="togglePasswordVisibility()"></i>
+                </div>
+
+                <!-- Pilihan Mata Pelajaran (Sesuai referensi gambar) -->
+                <div class="input-group">
+                    <i class="fas fa-book icon-left"></i>
+                    <select id="mapel" required>
+                        <option value="" disabled selected hidden>PILIH MAPEL</option>
+                        <option value="matematika">Matematika</option>
+                        <option value="ipa">Ilmu Pengetahuan Alam</option>
+                        <option value="ips">Ilmu Pengetahuan Sosial</option>
+                        <option value="bahasa">Bahasa Indonesia</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-login">Login</button>
+            </form>
+        </div>
+
+        <!-- Teks Footer -->
+        <div class="footer">
+            <p>&copy; Copyright 2026, CBT SD Inpres Binanga 1 Mamuju</p>
+            <p>Aplikasi Ujian: v1.0.0</p>
+        </div>
+    </div>
+
+    <script>
+        // Fitur untuk Show/Hide Password
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById("password");
+            const toggleIcon = document.getElementById("toggleBtn");
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleIcon.classList.remove("fa-eye");
+                toggleIcon.classList.add("fa-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                toggleIcon.classList.remove("fa-eye-slash");
+                toggleIcon.classList.add("fa-eye");
+            }
+        }
+
+        // Mencegah form reload saat tombol login ditekan (untuk tahap desain UI ini)
+        document.getElementById("formLogin").addEventListener("submit", function(event) {
+            event.preventDefault();
+            alert("Desain UI Login Selesai. Fungsi verifikasi akan dihubungkan dengan Google Sheets nanti.");
+        });
+    </script>
+</body>
+</html>
