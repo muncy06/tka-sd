@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ujian CBT - SD Inpres Binanga 1</title>
     
-    <!-- Font dan Ikon -->
+    <!-- Font, Ikon, dan Chart.js -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         * {
@@ -17,413 +18,444 @@
             font-family: 'Poppins', sans-serif;
         }
 
+        /* ANTI SCROLL BROWSER MUTLAK */
         body {
-            background-color: #f4f6f9;
+            background-color: #eef2f6;
             color: #333;
-            overflow-x: hidden;
-        }
-
-        /* OVERLAY MULAI UJIAN & PERINGATAN FULLSCREEN */
-        #start-overlay, #warning-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden; /* Mengunci scrollbar utama browser */
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            text-align: center;
-            padding: 20px;
         }
 
-        #start-overlay .card, #warning-overlay .card {
-            background: white;
-            color: #333;
-            padding: 40px;
-            border-radius: 12px;
-            max-width: 500px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        /* ================= OVERLAYS ================= */
+        .full-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.95); color: white; display: flex;
+            flex-direction: column; justify-content: center; align-items: center;
+            z-index: 9999; text-align: center; padding: 20px;
+            backdrop-filter: blur(8px);
         }
-
+        .full-overlay .card {
+            background: white; color: #333; padding: 50px; border-radius: 16px;
+            max-width: 600px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); width: 100%;
+        }
         .btn-start {
-            background: #0d6efd;
-            color: white;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
+            background: #0d6efd; color: white; padding: 15px 30px; border: none;
+            border-radius: 10px; font-size: 20px; font-weight: 700; cursor: pointer;
+            margin-top: 25px; transition: 0.3s; display: flex; align-items: center;
+            justify-content: center; gap: 12px; width: 100%;
         }
+        .btn-start:hover { background: #0b5ed7; transform: translateY(-2px); }
+        .btn-start:disabled { background: #6c757d; cursor: not-allowed; transform: none; }
 
-        .btn-start:hover { background: #0b5ed7; }
-        .btn-start:disabled { background: #6c757d; cursor: not-allowed; }
-
-        /* HEADER */
-        .header {
-            background: #0d47a1;
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        /* ================= CUSTOM MODAL (PENGGANTI ALERT/CONFIRM) ================= */
+        #custom-modal, #exit-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.7); z-index: 10000; justify-content: center; align-items: center;
+            backdrop-filter: blur(3px);
         }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        .modal-box {
+            background: white; border-radius: 16px; padding: 30px 40px; text-align: center;
+            max-width: 450px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
-        .header-left img {
-            width: 50px;
-            height: 50px;
-            background: white;
-            border-radius: 50%;
-            padding: 4px;
-        }
-
-        .header-left h1 { font-size: 18px; font-weight: 600; }
-        .header-left p { font-size: 12px; color: #bbdefb; }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .user-info { text-align: right; }
-        .user-info .nama { font-weight: 600; font-size: 15px; }
-        .user-info .kelas { font-size: 12px; color: #bbdefb; }
-
-        .timer-box {
-            background: #ff4757;
-            padding: 8px 15px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        /* KONTEN UTAMA */
-        .container {
-            display: flex;
-            padding: 20px;
-            gap: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-            min-height: calc(100vh - 80px);
-        }
-
-        /* BAGIAN SOAL */
-        .question-area {
-            flex: 3;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .q-header {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 2px solid #f0f2f5;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-            font-weight: 600;
-            color: #555;
-        }
-
-        .q-text {
-            font-size: 16px;
-            line-height: 1.6;
-            margin-bottom: 25px;
-            text-align: justify;
-        }
-
-        .options-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .option-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .option-item:hover { background: #f8f9fa; border-color: #0d6efd; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
-        .option-item input[type="radio"] {
-            margin-right: 15px;
-            transform: scale(1.3);
-            cursor: pointer;
+        .modal-icon { font-size: 50px; margin-bottom: 15px; color: #ffc107; }
+        .modal-title { font-size: 22px; font-weight: 700; color: #333; margin-bottom: 10px; }
+        .modal-message { font-size: 15px; color: #555; margin-bottom: 30px; line-height: 1.5; }
+        .modal-actions { display: flex; gap: 15px; justify-content: center; }
+        
+        .btn-modal {
+            padding: 10px 25px; border: none; border-radius: 8px; font-size: 16px;
+            font-weight: 600; cursor: pointer; transition: 0.2s; flex: 1;
         }
+        .btn-modal-cancel { background: #e2e8f0; color: #475569; }
+        .btn-modal-cancel:hover { background: #cbd5e1; }
+        .btn-modal-confirm { background: #0d6efd; color: white; }
+        .btn-modal-confirm:hover { background: #0b5ed7; }
+
+        /* INPUT PASSWORD KELUAR */
+        .input-pass {
+            width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;
+            font-size: 18px; text-align: center; margin-bottom: 25px; outline: none; transition: 0.3s;
+            font-family: monospace; font-weight: bold; letter-spacing: 5px;
+        }
+        .input-pass:focus { border-color: #dc3545; box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1); }
+
+        /* ================= HEADER ================= */
+        .header {
+            background: #0d47a1; color: white; padding: 15px 40px; display: flex;
+            justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            height: 90px; flex-shrink: 0;
+        }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .header-left img { width: 60px; height: 60px; background: white; border-radius: 50%; padding: 4px; }
+        .header-left h1 { font-size: 24px; font-weight: 700; letter-spacing: 1px;}
+        .header-left p { font-size: 14px; color: #bbdefb; letter-spacing: 2px; }
+
+        .header-right { 
+            background: rgba(255,255,255,0.1); padding: 10px 25px; border-radius: 12px;
+            text-align: right; border: 1px solid rgba(255,255,255,0.2);
+        }
+        .header-right .nama { font-weight: 700; font-size: 22px; text-transform: uppercase; letter-spacing: 0.5px;}
+        .header-right .kelas { font-size: 15px; color: #90caf9; font-weight: 500; }
+
+        /* ================= KONTEN UTAMA (RATA TENGAH) ================= */
+        .main-wrapper {
+            flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px;
+            overflow: hidden; /* Mencegah scroll luar */
+        }
+        .container {
+            display: flex; gap: 30px; width: 100%; max-width: 1400px; height: 100%;
+        }
+
+        /* BAGIAN SOAL (KIRI) */
+        .question-area {
+            flex: 3; background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            display: flex; flex-direction: column; height: 100%; border: 1px solid #e2e8f0;
+        }
+        .q-header {
+            display: flex; justify-content: space-between; align-items: center; padding: 25px 30px;
+            border-bottom: 2px solid #f1f5f9; background: #f8fafc; border-radius: 16px 16px 0 0;
+        }
+        .q-badge { background: #0d6efd; color: white; padding: 8px 20px; border-radius: 20px; font-size: 18px; font-weight: 700; }
+        
+        .q-body {
+            padding: 30px; overflow-y: auto; flex: 1; /* Scroll internal jika soal super panjang */
+        }
+        .q-text { font-size: 18px; line-height: 1.8; margin-bottom: 35px; color: #1e293b; text-align: justify; }
+
+        .options-list { list-style: none; display: flex; flex-direction: column; gap: 15px; }
+        .option-item {
+            display: flex; align-items: center; padding: 18px 25px; border: 2px solid #e2e8f0;
+            border-radius: 12px; cursor: pointer; transition: 0.2s; background: #f8fafc; font-size: 16px;
+        }
+        .option-item:hover { border-color: #93c5fd; background: #eff6ff; }
+        .option-item.selected { border-color: #0d6efd; background: #eff6ff; }
+        .option-item input[type="radio"] { margin-right: 20px; transform: scale(1.5); cursor: pointer; }
 
         .q-navigation {
-            margin-top: auto;
-            padding-top: 30px;
-            display: flex;
-            justify-content: space-between;
+            padding: 25px 30px; display: flex; justify-content: space-between;
+            border-top: 2px solid #f1f5f9; background: #f8fafc; border-radius: 0 0 16px 16px;
         }
-
         .btn-nav {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            color: white;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            padding: 12px 30px; border: none; border-radius: 10px; cursor: pointer; font-size: 16px;
+            font-weight: 600; color: white; transition: 0.3s; display: flex; align-items: center; gap: 10px;
         }
+        .btn-prev { background: #64748b; } .btn-prev:hover { background: #475569; }
+        .btn-next { background: #0d6efd; } .btn-next:hover { background: #0b5ed7; }
 
-        .btn-prev { background: #6c757d; }
-        .btn-prev:hover { background: #5a6268; }
-        .btn-next { background: #0d6efd; }
-        .btn-next:hover { background: #0b5ed7; }
-
-        /* BAGIAN NAVIGASI NOMOR SOAL (SIDEBAR) */
+        /* BAGIAN NAVIGASI NOMOR SOAL (KANAN) */
         .sidebar {
-            flex: 1;
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            max-height: calc(100vh - 120px);
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
+            flex: 1; background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            display: flex; flex-direction: column; height: 100%; border: 1px solid #e2e8f0;
         }
-
-        .sidebar h3 {
-            font-size: 15px;
-            margin-bottom: 15px;
-            text-align: center;
-            color: #444;
+        .sidebar-header {
+            padding: 25px; border-bottom: 2px solid #f1f5f9; background: #f8fafc;
+            border-radius: 16px 16px 0 0; text-align: center;
         }
-
-        .number-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
-            gap: 10px;
+        .sidebar-header h3 { font-size: 18px; color: #1e293b; }
+        
+        .sidebar-body {
+            padding: 25px; overflow-y: auto; flex: 1;
         }
-
+        .number-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 12px; }
         .btn-num {
-            width: 100%;
-            aspect-ratio: 1;
-            border: 1px solid #ccc;
-            background: white;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
+            width: 100%; aspect-ratio: 1; border: 2px solid #cbd5e1; background: white; color: #475569;
+            border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s;
         }
-
-        .btn-num:hover { border-color: #0d6efd; }
-        .btn-num.active { border: 2px solid #000; box-shadow: 0 0 5px rgba(0,0,0,0.3); }
+        .btn-num:hover { border-color: #0d6efd; color: #0d6efd; }
+        .btn-num.active { border-color: #0d6efd; background: #eff6ff; color: #0d6efd; transform: scale(1.1); }
         .btn-num.answered { background: #28a745; color: white; border-color: #28a745; }
+        .btn-num.answered.active { background: #218838; border-color: #1e7e34; }
 
+        .sidebar-footer { padding: 25px; border-top: 2px solid #f1f5f9; background: #f8fafc; border-radius: 0 0 16px 16px; }
         .btn-submit-exam {
-            margin-top: 25px;
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 15px;
-            transition: 0.3s;
+            width: 100%; background: #10b981; color: white; border: none; padding: 15px;
+            border-radius: 10px; font-weight: 700; font-size: 18px; cursor: pointer; transition: 0.3s;
         }
+        .btn-submit-exam:hover { background: #059669; }
 
-        .btn-submit-exam:hover { background: #218838; }
-
-        /* Responsif */
-        @media (max-width: 768px) {
-            .container { flex-direction: column; }
-            .header-left h1 { font-size: 14px; }
-            .user-info { display: none; }
+        /* ================= HASIL UJIAN SCREEN ================= */
+        #result-container {
+            display: none; justify-content: center; align-items: center; width: 100vw; height: 100vh;
+            background: #f8fafc; position: fixed; top: 0; left: 0; z-index: 1000; overflow-y: auto; padding: 30px;
         }
+        .result-card {
+            background: white; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            padding: 50px; max-width: 600px; width: 100%; text-align: center; margin: auto;
+        }
+        .result-info { background: #f1f5f9; border-left: 6px solid #0d6efd; padding: 20px; border-radius: 12px; text-align: left; margin: 25px 0;}
+        .result-info p { margin-bottom: 10px; font-size: 16px; color: #334155;}
+        
+        .badge { padding: 8px 16px; border-radius: 30px; font-size: 14px; font-weight: 700; color: white; display: inline-block;}
+        .badge-hijau { background: #10b981; } .badge-kuning { background: #f59e0b; color: #fff; }
+        .badge-orange { background: #f97316; } .badge-merah { background: #ef4444; }
+
     </style>
 </head>
 <body>
 
-    <!-- OVERLAY MULAI UJIAN -->
-    <div id="start-overlay">
+    <!-- OVERLAY MULAI UJIAN (LAYAR PERTAMA) -->
+    <div id="start-overlay" class="full-overlay">
         <div class="card">
-            <h2 style="margin-bottom: 15px; color: #0d47a1;">Siap Memulai Ujian?</h2>
-            <p style="color: #555; margin-bottom: 25px;">Sistem akan masuk ke mode layar penuh (Full Screen). Dilarang keluar dari layar ujian atau membuka tab lain. Pelanggaran akan terdeteksi oleh sistem.</p>
-            <button class="btn-start" id="btnMulaiUjian" onclick="startExam()" disabled>
+            <h2 style="margin-bottom: 10px; color: #0d47a1; font-size: 32px;"><i class="fas fa-desktop"></i> Ujian Siap Dilaksanakan</h2>
+            <p style="color: #64748b; font-size: 16px; margin-bottom: 30px; line-height: 1.6;">
+                Sistem akan masuk ke mode layar penuh (Full Screen) mutlak.<br>
+                <b>Dilarang keras keluar aplikasi atau membuka tab lain selama ujian berlangsung.</b>
+            </p>
+            <button class="btn-start" id="btnMulaiUjian" onclick="showWaitingRoom()" disabled>
                 <i class="fas fa-spinner fa-spin"></i> Sedang Memuat Soal...
             </button>
         </div>
     </div>
 
+    <!-- OVERLAY WAITING ROOM (MENUNGGU PANITIA) -->
+    <div id="waiting-modal" class="full-overlay" style="display: none; background: rgba(15, 23, 42, 0.98);">
+        <div class="card" style="text-align: center;">
+            <i class="fas fa-clock" style="font-size: 60px; color: #0d6efd; margin-bottom: 20px;"></i>
+            <h2 style="color: #1e293b; margin-bottom: 10px; font-size: 28px;">Menunggu Panitia...</h2>
+            <p style="color: #64748b; font-size: 16px; margin-bottom: 25px;">Ujian akan dimulai serentak berdasarkan aba-aba Panitia Ujian.</p>
+            
+            <div style="background: #f1f5f9; padding: 25px; border-radius: 12px; margin-bottom: 30px;">
+                <p style="font-size: 14px; color: #475569; font-weight: 700; margin-bottom: 5px; letter-spacing: 2px;">WAKTU SERVER SAAT INI</p>
+                <div id="liveClock" style="font-size: 42px; font-weight: 800; color: #0d47a1; font-family: monospace;">00:00:00</div>
+            </div>
+
+            <button class="btn-start" onclick="beginExam()">
+                <i class="fas fa-edit"></i> Mulai Kerjakan
+            </button>
+        </div>
+    </div>
+
     <!-- OVERLAY PERINGATAN KELUAR FULLSCREEN -->
-    <div id="warning-overlay" style="display: none;">
-        <div class="card" style="border: 3px solid #ff4757;">
-            <h2 style="margin-bottom: 15px; color: #ff4757;"><i class="fas fa-exclamation-triangle"></i> PERINGATAN!</h2>
-            <p style="color: #333; font-weight: bold; margin-bottom: 10px;">Anda telah keluar dari mode layar penuh atau beralih aplikasi.</p>
-            <p style="color: #666; font-size: 14px; margin-bottom: 25px;">Tindakan ini dicatat oleh sistem. Silakan kembali ke layar penuh untuk melanjutkan ujian.</p>
-            <button class="btn-start" style="background: #ff4757;" onclick="returnToFullscreen()">Kembali ke Ujian</button>
+    <div id="warning-overlay" class="full-overlay" style="display: none; background: rgba(220, 53, 69, 0.95);">
+        <div class="card" style="box-shadow: 0 0 0 5px rgba(255,255,255,0.3);">
+            <h2 style="margin-bottom: 15px; color: #dc3545; font-size: 36px;"><i class="fas fa-exclamation-triangle"></i> PELANGGARAN!</h2>
+            <p style="color: #1e293b; font-size: 18px; font-weight: 700; margin-bottom: 15px;">Anda terdeteksi keluar dari mode layar penuh.</p>
+            <p style="color: #64748b; font-size: 15px; margin-bottom: 35px; line-height: 1.6;">Aktivitas ini telah direkam oleh sistem pengawas. Harap segera kembali ke mode layar penuh untuk melanjutkan ujian Anda.</p>
+            <button class="btn-start" style="background: #dc3545;" onclick="returnToFullscreen()"><i class="fas fa-compress"></i> Kembali ke Ujian</button>
+        </div>
+    </div>
+
+    <!-- CUSTOM MODAL (PENGGANTI ALERT & CONFIRM) -->
+    <div id="custom-modal">
+        <div class="modal-box">
+            <div class="modal-icon" id="modalIcon"><i class="fas fa-question-circle"></i></div>
+            <div class="modal-title" id="modalTitle">Konfirmasi</div>
+            <div class="modal-message" id="modalMessage">Apakah Anda yakin?</div>
+            <div class="modal-actions" id="modalActions">
+                <!-- Tombol akan disuntikkan via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PASSWORD EXIT -->
+    <div id="exit-modal">
+        <div class="modal-box">
+            <div class="modal-icon"><i class="fas fa-lock" style="color: #dc3545;"></i></div>
+            <div class="modal-title">Verifikasi Keluar</div>
+            <div class="modal-message">Masukkan password pengawas ruangan untuk mengakhiri sesi dan keluar dari aplikasi.</div>
+            
+            <input type="password" id="exitPassword" class="input-pass" placeholder="****" autocomplete="off">
+            <p id="exitErrorText" style="color: #dc3545; font-size: 13px; font-weight: 600; margin-bottom: 15px; display: none;">Password salah!</p>
+
+            <div class="modal-actions">
+                <button class="btn-modal btn-modal-cancel" onclick="document.getElementById('exit-modal').style.display='none'">Batal</button>
+                <button class="btn-modal btn-modal-confirm" style="background: #dc3545;" onclick="verifyExit()"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+            </div>
         </div>
     </div>
 
     <!-- HEADER UJIAN -->
     <div class="header">
         <div class="header-left">
-            <img src="logo.png" alt="Logo" onerror="this.src='https://via.placeholder.com/50/ffffff/000000?text=Logo'">
+            <img src="logo.png" alt="Logo" onerror="this.src='https://via.placeholder.com/60/ffffff/000000?text=Logo'">
             <div>
                 <h1>SD INPRES BINANGA 1</h1>
-                <p>Ujian Sekolah CBT Terpadu</p>
+                <p>UJIAN SEKOLAH CBT 2026</p>
             </div>
         </div>
         <div class="header-right">
-            <div class="user-info">
-                <div class="nama" id="displayNama">Memuat Nama...</div>
-                <div class="kelas" id="displayKelas">Memuat Kelas...</div>
+            <div class="nama" id="displayNama">MEMUAT NAMA...</div>
+            <div class="kelas" id="displayKelas">Memuat Kelas...</div>
+        </div>
+    </div>
+
+    <!-- KONTEN UTAMA (RATA TENGAH & ANTI SCROLL) -->
+    <div class="main-wrapper" id="main-container">
+        <div class="container">
+            
+            <!-- Area Soal (Kiri) -->
+            <div class="question-area">
+                <div class="q-header">
+                    <div class="q-badge" id="qNumberBadge">Soal No. 1</div>
+                    <span style="color: #64748b; font-size: 15px;"><i class="fas fa-check-circle"></i> Pilihlah satu jawaban yang benar</span>
+                </div>
+                
+                <div class="q-body">
+                    <div class="q-text" id="questionText">Memuat soal ujian dari server...</div>
+                    <ul class="options-list" id="optionsList">
+                        <!-- Opsi dirender JS -->
+                    </ul>
+                </div>
+
+                <div class="q-navigation">
+                    <button class="btn-nav btn-prev" onclick="prevQuestion()" id="btnPrev" style="visibility: hidden;">
+                        <i class="fas fa-arrow-left"></i> Sebelumnya
+                    </button>
+                    <button class="btn-nav btn-next" onclick="nextQuestion()" id="btnNext">
+                        Selanjutnya <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
             </div>
-            <div class="timer-box">
-                <i class="far fa-clock"></i>
-                <span id="timerText">00:00:00</span>
+
+            <!-- Area Navigasi Sidebar (Kanan) -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h3><i class="fas fa-th-large"></i> Peta Soal</h3>
+                </div>
+                
+                <div class="sidebar-body">
+                    <div class="number-grid" id="numberGrid">
+                        <!-- Tombol angka -->
+                    </div>
+                </div>
+
+                <div class="sidebar-footer">
+                    <button class="btn-submit-exam" onclick="triggerSubmitConfirmation()">
+                        <i class="fas fa-paper-plane"></i> Kumpulkan Jawaban
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- KONTEN UTAMA -->
-    <div class="container">
-        
-        <!-- Area Soal -->
-        <div class="question-area">
-            <div class="q-header">
-                <span id="qNumberBadge">Soal No. 1</span>
-                <span style="color: #888;"><i class="fas fa-info-circle"></i> Pilihlah salah satu jawaban yang paling tepat.</span>
-            </div>
+    <!-- KONTEN HASIL UJIAN (PASCA SUBMIT) -->
+    <div id="result-container">
+        <div class="result-card">
+            <h2 style="color: #10b981; font-size: 32px; margin-bottom: 10px;"><i class="fas fa-check-circle"></i> Ujian Selesai!</h2>
+            <p style="color: #64748b;">Terima kasih telah mengikuti ujian dengan jujur dan tertib.</p>
             
-            <div class="q-text" id="questionText">
-                Memuat soal ujian dari database, harap tunggu...
+            <div class="result-info">
+                <p><b>Nama :</b> <span id="resNama">Memuat...</span></p>
+                <p><b>NISN :</b> <span id="resNisn">Memuat...</span></p>
+                <p style="margin-top: 15px; border-top: 1px solid #cbd5e1; padding-top: 15px;">
+                    <b>Nilai Akhir :</b> <span id="resNilai" style="font-size: 24px; font-weight: 800; color: #0d47a1;">0</span>
+                </p>
+                <p style="margin-top: 10px;"><b>Predikat :</b> <span id="resStatus">Memuat...</span></p>
             </div>
 
-            <ul class="options-list" id="optionsList">
-                <!-- Opsi akan dirender dari JavaScript -->
-            </ul>
-
-            <div class="q-navigation">
-                <button class="btn-nav btn-prev" onclick="prevQuestion()" id="btnPrev" style="visibility: hidden;">
-                    <i class="fas fa-chevron-left"></i> Soal Sebelumnya
-                </button>
-                <button class="btn-nav btn-next" onclick="nextQuestion()" id="btnNext">
-                    Soal Selanjutnya <i class="fas fa-chevron-right"></i>
-                </button>
+            <h4 style="color: #475569; margin-bottom: 15px;">Statistik Jawaban</h4>
+            <div style="width: 200px; height: 200px; margin: 0 auto 30px auto;">
+                <canvas id="studentResultChart"></canvas>
             </div>
-        </div>
 
-        <!-- Area Navigasi Sidebar -->
-        <div class="sidebar">
-            <h3>Navigasi Soal</h3>
-            <div class="number-grid" id="numberGrid">
-                <!-- Tombol angka akan di-generate oleh JS -->
-            </div>
-            <button class="btn-submit-exam" onclick="submitExam()">
-                <i class="fas fa-check-circle"></i> Selesai & Kumpulkan
+            <!-- Tombol Keluar ini kini memanggil Modal Exit, BUKAN logout instan -->
+            <button class="btn-start" style="background: #dc3545; width: auto; margin: 0 auto; padding: 12px 40px;" onclick="promptExit()">
+                <i class="fas fa-sign-out-alt"></i> Selesai & Keluar
             </button>
         </div>
-
     </div>
 
     <script>
-        // =========================================================================
-        // URL GOOGLE APPS SCRIPT
-        // =========================================================================
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxVhowRAW6F_fXDIrMfzDghiqswer4QXY4SVr49MKYLKFw0Q__ODW9nHXkorpuBAMyMCA/exec';
 
-        // --- 1. CEK AUTENTIKASI ---
+        // --- 1. AUTENTIKASI ---
         if (localStorage.getItem('isLoggedIn') !== 'true' || localStorage.getItem('role') !== 'siswa') {
-            alert('Akses ditolak! Silakan login terlebih dahulu.');
             window.location.href = 'index.html';
         }
 
-        // --- 2. TAMPILKAN DATA SISWA ---
-        document.getElementById('displayNama').innerText = localStorage.getItem('namaSiswa') || 'Nama Siswa';
+        document.getElementById('displayNama').innerText = localStorage.getItem('namaSiswa') || 'NAMA SISWA';
         document.getElementById('displayKelas').innerText = localStorage.getItem('kelasSiswa') || 'Kelas';
 
-        // --- 3. VARIABEL GLOBAL UJIAN ---
+        // --- 2. VARIABEL GLOBAL ---
         let currentQuestionIndex = 0;
-        let examData = []; // Akan diisi data soal secara dinamis
-        let userAnswers = {}; // Menyimpan jawaban siswa { id_soal: 'A' }
-        let timerInterval;
-        const totalDuration = 120 * 60; // 120 menit = 2 Jam ujian
-        let timeRemaining = totalDuration;
+        let examData = []; 
+        let userAnswers = {}; 
+        let isExamFinished = false; 
+        let clockInterval;
 
-        // --- 4. FETCH DATA SOAL DARI SPREADSHEET ---
+        // --- 3. CUSTOM MODAL LOGIC (Anti Keluar Fullscreen) ---
+        function showModal(type, title, message, onConfirm = null) {
+            const modal = document.getElementById('custom-modal');
+            const icon = document.getElementById('modalIcon');
+            const titleEl = document.getElementById('modalTitle');
+            const msgEl = document.getElementById('modalMessage');
+            const actions = document.getElementById('modalActions');
+
+            titleEl.innerText = title;
+            msgEl.innerHTML = message; 
+
+            if (type === 'alert') {
+                icon.innerHTML = '<i class="fas fa-info-circle" style="color:#0d6efd;"></i>';
+                actions.innerHTML = `<button class="btn-modal btn-modal-confirm" onclick="closeModal()">Mengerti</button>`;
+            } else if (type === 'confirm') {
+                icon.innerHTML = '<i class="fas fa-question-circle" style="color:#ffc107;"></i>';
+                actions.innerHTML = `
+                    <button class="btn-modal btn-modal-cancel" onclick="closeModal()">Kembali Periksa</button>
+                    <button class="btn-modal btn-modal-confirm" id="btnConfirmAction">Ya, Kumpulkan</button>
+                `;
+                document.getElementById('btnConfirmAction').onclick = () => {
+                    closeModal();
+                    if(onConfirm) onConfirm();
+                };
+            }
+            modal.style.display = 'flex';
+        }
+        function closeModal() { document.getElementById('custom-modal').style.display = 'none'; }
+
+        // --- 4. FETCH DATA SOAL ---
         window.onload = async function() {
             const formData = new FormData();
             formData.append('action', 'getSoal');
-
             try {
                 const response = await fetch(scriptURL, { method: 'POST', body: formData });
                 const result = await response.json();
-
                 if (result.status === 'success') {
-                    examData = result.data; // Menyimpan 120 soal dari database
-                    
-                    // Aktifkan Tombol Mulai Ujian
+                    examData = result.data; 
                     const btnStart = document.getElementById('btnMulaiUjian');
                     btnStart.disabled = false;
-                    btnStart.innerHTML = '<i class="fas fa-play"></i> Mulai Ujian Sekarang';
-                } else {
-                    alert("Gagal memuat bank soal: " + result.message);
-                }
-            } catch (error) {
-                alert("Kesalahan Jaringan. Pastikan Anda terkoneksi internet dan mengakses web via Live Server/Hosting.");
-                console.error('Error fetching soal:', error);
-            }
+                    btnStart.innerHTML = '<i class="fas fa-check-circle"></i> Siap Ujian';
+                } else { showModal('alert', 'Error Database', 'Gagal memuat soal: ' + result.message); }
+            } catch (error) { showModal('alert', 'Error Jaringan', 'Pastikan koneksi internet stabil.'); }
         };
 
-        // --- 5. INISIALISASI UJIAN ---
-        function startExam() {
-            // Aktifkan Fullscreen
+        // --- 5. LOGIKA WAITING ROOM & START EXAM ---
+        function showWaitingRoom() {
+            document.getElementById('start-overlay').style.display = 'none';
+            document.getElementById('waiting-modal').style.display = 'flex';
+            
+            // Inisiasi Jam Server (Live Time)
+            updateClock();
+            clockInterval = setInterval(updateClock, 1000);
+        }
+
+        function updateClock() {
+            const now = new Date();
+            let h = String(now.getHours()).padStart(2, '0');
+            let m = String(now.getMinutes()).padStart(2, '0');
+            let s = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('liveClock').innerText = `${h}:${m}:${s}`;
+        }
+
+        function beginExam() {
+            // Hentikan Jam
+            clearInterval(clockInterval);
+
+            // Masuk Mode Layar Penuh (Harus dipicu dari klik user di tombol "Mulai Kerjakan")
             let elem = document.documentElement;
             if (elem.requestFullscreen) { elem.requestFullscreen(); } 
             else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); } 
             else if (elem.msRequestFullscreen) { elem.msRequestFullscreen(); }
 
-            // Sembunyikan overlay
-            document.getElementById('start-overlay').style.display = 'none';
+            document.getElementById('waiting-modal').style.display = 'none';
             
-            // Generate Navigasi Angka
             generateNumberGrid();
-            
-            // Tampilkan soal pertama
             renderQuestion(0);
-
-            // Mulai Timer
-            startTimer();
         }
 
         function returnToFullscreen() {
@@ -437,61 +469,41 @@
             currentQuestionIndex = index;
             const q = examData[index];
             
-            // Update teks & header
             document.getElementById('qNumberBadge').innerText = `Soal No. ${index + 1}`;
             document.getElementById('questionText').innerText = q.text;
 
-            // Update Opsi (A, B, C, D)
             const optionsHtml = `
-                <label class="option-item" onclick="saveAnswer(${q.id}, 'A')">
-                    <input type="radio" name="answer" value="A" ${userAnswers[q.id] === 'A' ? 'checked' : ''}> 
-                    A. ${q.a}
+                <label class="option-item ${userAnswers[q.id] === 'A' ? 'selected' : ''}" onclick="saveAnswer(${q.id}, 'A')">
+                    <input type="radio" name="answer" value="A" ${userAnswers[q.id] === 'A' ? 'checked' : ''}> A. ${q.a}
                 </label>
-                <label class="option-item" onclick="saveAnswer(${q.id}, 'B')">
-                    <input type="radio" name="answer" value="B" ${userAnswers[q.id] === 'B' ? 'checked' : ''}> 
-                    B. ${q.b}
+                <label class="option-item ${userAnswers[q.id] === 'B' ? 'selected' : ''}" onclick="saveAnswer(${q.id}, 'B')">
+                    <input type="radio" name="answer" value="B" ${userAnswers[q.id] === 'B' ? 'checked' : ''}> B. ${q.b}
                 </label>
-                <label class="option-item" onclick="saveAnswer(${q.id}, 'C')">
-                    <input type="radio" name="answer" value="C" ${userAnswers[q.id] === 'C' ? 'checked' : ''}> 
-                    C. ${q.c}
+                <label class="option-item ${userAnswers[q.id] === 'C' ? 'selected' : ''}" onclick="saveAnswer(${q.id}, 'C')">
+                    <input type="radio" name="answer" value="C" ${userAnswers[q.id] === 'C' ? 'checked' : ''}> C. ${q.c}
                 </label>
-                <label class="option-item" onclick="saveAnswer(${q.id}, 'D')">
-                    <input type="radio" name="answer" value="D" ${userAnswers[q.id] === 'D' ? 'checked' : ''}> 
-                    D. ${q.d}
+                <label class="option-item ${userAnswers[q.id] === 'D' ? 'selected' : ''}" onclick="saveAnswer(${q.id}, 'D')">
+                    <input type="radio" name="answer" value="D" ${userAnswers[q.id] === 'D' ? 'checked' : ''}> D. ${q.d}
                 </label>
             `;
             document.getElementById('optionsList').innerHTML = optionsHtml;
-
-            // Atur tombol Prev/Next
             document.getElementById('btnPrev').style.visibility = index === 0 ? 'hidden' : 'visible';
             document.getElementById('btnNext').style.visibility = index === examData.length - 1 ? 'hidden' : 'visible';
-
-            // Highlight nomor yang sedang aktif di sidebar
             updateActiveNumber(index);
         }
 
-        // --- 7. LOGIKA NAVIGASI & JAWABAN ---
         function saveAnswer(soalId, answerVal) {
             userAnswers[soalId] = answerVal;
-            // Update warna tombol di sidebar menjadi hijau
             document.getElementById(`btn-num-${currentQuestionIndex}`).classList.add('answered');
+            
+            const items = document.querySelectorAll('.option-item');
+            items.forEach(item => item.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
         }
 
-        function nextQuestion() {
-            if (currentQuestionIndex < examData.length - 1) {
-                renderQuestion(currentQuestionIndex + 1);
-            }
-        }
-
-        function prevQuestion() {
-            if (currentQuestionIndex > 0) {
-                renderQuestion(currentQuestionIndex - 1);
-            }
-        }
-
-        function jumpToQuestion(index) {
-            renderQuestion(index);
-        }
+        function nextQuestion() { if (currentQuestionIndex < examData.length - 1) renderQuestion(currentQuestionIndex + 1); }
+        function prevQuestion() { if (currentQuestionIndex > 0) renderQuestion(currentQuestionIndex - 1); }
+        function jumpToQuestion(index) { renderQuestion(index); }
 
         function generateNumberGrid() {
             const grid = document.getElementById('numberGrid');
@@ -507,100 +519,123 @@
         }
 
         function updateActiveNumber(index) {
-            const btns = document.querySelectorAll('.btn-num');
-            btns.forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.btn-num').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`btn-num-${index}`).classList.add('active');
         }
 
-        // --- 8. TIMER ---
-        function startTimer() {
-            timerInterval = setInterval(() => {
-                if (timeRemaining <= 0) {
-                    clearInterval(timerInterval);
-                    autoSubmitExam();
-                } else {
-                    timeRemaining--;
-                    let h = Math.floor(timeRemaining / 3600);
-                    let m = Math.floor((timeRemaining % 3600) / 60);
-                    let s = timeRemaining % 60;
-                    document.getElementById('timerText').innerText = 
-                        `${h < 10 ? '0'+h : h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
-                }
-            }, 1000);
-        }
-
-        // --- 9. ANTI CHEAT (Deteksi keluar tab/fullscreen) ---
+        // --- 7. ANTI CHEAT (Deteksi keluar tab/fullscreen) ---
         document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'hidden' && document.getElementById('start-overlay').style.display === 'none') {
+            if (isExamFinished) return;
+            if (document.visibilityState === 'hidden' && document.getElementById('start-overlay').style.display === 'none' && document.getElementById('waiting-modal').style.display === 'none') {
                 document.getElementById('warning-overlay').style.display = 'flex';
             }
         });
 
         document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement && document.getElementById('start-overlay').style.display === 'none') {
+            if (isExamFinished) return;
+            if (!document.fullscreenElement && document.getElementById('start-overlay').style.display === 'none' && document.getElementById('waiting-modal').style.display === 'none') {
                 document.getElementById('warning-overlay').style.display = 'flex';
             }
         });
 
-        // --- 10. SUBMIT UJIAN (PENGIRIMAN DATA) ---
-        function submitExam() {
+        // --- 8. SUBMIT UJIAN KE SERVER ---
+        function triggerSubmitConfirmation() {
             const totalJawab = Object.keys(userAnswers).length;
             const belumJawab = examData.length - totalJawab;
 
-            let konfirmasiMsg = `Anda sudah menjawab ${totalJawab} dari ${examData.length} soal.\n`;
+            let pesan = `Anda telah menjawab <b style="color:#0d47a1;">${totalJawab}</b> dari <b style="color:#0d47a1;">${examData.length}</b> soal.<br><br>`;
             if (belumJawab > 0) {
-                konfirmasiMsg += `⚠️ MASIH ADA ${belumJawab} SOAL YANG KOSONG!\n\n`;
+                pesan += `<span style="color:#dc3545; font-weight:bold;"><i class="fas fa-exclamation-triangle"></i> PERINGATAN: Masih ada ${belumJawab} soal kosong!</span><br><br>`;
             }
-            konfirmasiMsg += "Apakah Anda yakin ingin mengumpulkan ujian sekarang?";
+            pesan += "Apakah Anda yakin ingin mengakhiri dan mengumpulkan ujian?";
 
-            if (confirm(konfirmasiMsg)) {
-                prosesKirimData();
-            }
-        }
-
-        function autoSubmitExam() {
-            alert("Waktu Habis! Jawaban Anda akan dikirim secara otomatis.");
-            prosesKirimData();
+            showModal('confirm', 'Kumpulkan Jawaban?', pesan, prosesKirimData);
         }
 
         function prosesKirimData() {
-            clearInterval(timerInterval); // Hentikan timer
-
-            // Ubah tampilan layar jadi mode loading pengiriman
-            document.querySelector('.container').innerHTML = `
-                <div style="flex:1; text-align:center; padding: 100px; background:white; border-radius:12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                    <i class="fas fa-spinner fa-spin" style="font-size: 50px; color: #0d6efd; margin-bottom: 20px;"></i>
-                    <h2 style="color: #333;">Menyimpan Jawaban ke Database...</h2>
-                    <p style="color: #666;">Mohon jangan tutup jendela ini.</p>
+            // Mode Loading Pengiriman
+            document.getElementById('main-container').innerHTML = `
+                <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; background:white; border-radius:16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+                    <i class="fas fa-paper-plane" style="font-size: 60px; color: #0d6efd; margin-bottom: 25px; animation: bounce 1s infinite;"></i>
+                    <h2 style="color: #1e293b; margin-bottom: 10px;">Mengirim Jawaban...</h2>
+                    <p style="color: #64748b;">Mohon jangan matikan perangkat atau menutup jendela browser.</p>
                 </div>
             `;
-
-            // Siapkan Data untuk dikirim
+            
             const formData = new FormData();
             formData.append('action', 'submitUjian');
-            formData.append('nisn', localStorage.getItem('nisnSiswa') || 'N/A'); // Kita butuh NISN Siswa
+            formData.append('nisn', localStorage.getItem('nisnSiswa') || 'N/A'); 
             formData.append('nama', localStorage.getItem('namaSiswa'));
             formData.append('kelas', localStorage.getItem('kelasSiswa'));
-            formData.append('answers', JSON.stringify(userAnswers)); // Kirim Object jawaban berupa String
+            formData.append('answers', JSON.stringify(userAnswers)); 
 
-            // Eksekusi Fetch ke Google Apps Script
             fetch(scriptURL, { method: 'POST', body: formData })
                 .then(response => response.json())
                 .then(data => {
                     if(data.status === 'success') {
-                        localStorage.removeItem('isLoggedIn'); // Putus sesi login
-                        // Opsional: Anda bisa menampilkan nilai jika diperbolehkan, contoh:
-                        // alert("Ujian Selesai! Nilai Anda: " + data.nilai);
-                        alert("Ujian berhasil diselesaikan! Terima kasih.");
-                        window.location.href = 'index.html'; // Kembali ke layar awal
+                        isExamFinished = true; // Matikan sensor anti-cheat agar siswa aman
+                        tampilkanHasilSiswa(data.nilai);
                     } else {
-                        alert("Gagal mengirim jawaban: " + data.message);
+                        showModal('alert', 'Gagal', "Gagal mengirim jawaban: " + data.message);
                     }
                 })
                 .catch(error => {
-                    alert("Koneksi terputus saat mencoba menyimpan. Tolong hubungi Pengawas Ujian!");
-                    console.error('Error saat submit:', error);
+                    showModal('alert', 'Error', "Koneksi terputus! Lapor ke Pengawas Ujian.");
                 });
+        }
+
+        // --- 9. TAMPILKAN LAYAR HASIL & GRAFIK ---
+        function getStatusBadge(nilai) {
+            if (nilai >= 75) return '<span class="badge badge-hijau">Sangat Baik</span>';
+            if (nilai >= 50) return '<span class="badge badge-kuning">Baik</span>';
+            if (nilai >= 25) return '<span class="badge badge-orange">Cukup Baik</span>';
+            return '<span class="badge badge-merah">Kurang Baik</span>';
+        }
+
+        function tampilkanHasilSiswa(nilaiAkhir) {
+            document.getElementById('main-container').style.display = 'none';
+            document.getElementById('result-container').style.display = 'flex';
+
+            document.getElementById('resNama').innerText = localStorage.getItem('namaSiswa');
+            document.getElementById('resNisn').innerText = localStorage.getItem('nisnSiswa');
+            document.getElementById('resNilai').innerText = nilaiAkhir;
+            document.getElementById('resStatus').innerHTML = getStatusBadge(nilaiAkhir);
+
+            let benar = parseFloat(nilaiAkhir);
+            let salah = 100 - benar;
+            const ctx = document.getElementById('studentResultChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Benar (%)', 'Salah / Kosong (%)'],
+                    datasets: [{
+                        data: [benar, salah],
+                        backgroundColor: ['#10b981', '#ef4444'],
+                        borderWidth: 3, borderColor: '#f8fafc'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        // --- 10. FITUR KELUAR DENGAN PASSWORD PENGAWAS ---
+        function promptExit() {
+            document.getElementById('exit-modal').style.display = 'flex';
+            document.getElementById('exitPassword').value = '';
+            document.getElementById('exitErrorText').style.display = 'none';
+        }
+
+        function verifyExit() {
+            const pass = document.getElementById('exitPassword').value.trim();
+            if (pass === '2026') {
+                localStorage.clear();
+                window.location.href = 'index.html';
+            } else {
+                document.getElementById('exitErrorText').style.display = 'block';
+                document.getElementById('exitPassword').value = '';
+                document.getElementById('exitPassword').focus();
+            }
         }
     </script>
 </body>

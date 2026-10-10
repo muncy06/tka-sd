@@ -231,7 +231,8 @@
 
                 <div class="input-group">
                     <i class="fas fa-lock icon-left"></i>
-                    <input type="password" id="password" placeholder="Password" required>
+                    <!-- Placeholder diganti untuk memberi petunjuk bahwa password default adalah 2026 -->
+                    <input type="password" id="password" placeholder="Password (Gunakan '2026')" required>
                     <i class="fas fa-eye toggle-password" id="toggleBtn" onclick="togglePasswordVisibility()"></i>
                 </div>
 
@@ -274,7 +275,7 @@
             event.preventDefault();
             
             const nisn = document.getElementById("username").value.trim();
-            const password = document.getElementById("password").value.trim();
+            let password = document.getElementById("password").value.trim();
 
             // Ubah tombol jadi status loading agar user tidak klik berkali-kali
             btnLogin.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Memeriksa...';
@@ -300,7 +301,7 @@
                     if (data.status === 'success') {
                         // Jika berhasil, simpan data sesi ke localStorage
                         localStorage.setItem('isLoggedIn', 'true');
-                        localStorage.setItem('nisnSiswa', nisn);      // <---- TAMBAHKAN BARIS INI
+                        localStorage.setItem('nisnSiswa', nisn);      
                         localStorage.setItem('namaSiswa', data.nama);
                         localStorage.setItem('kelasSiswa', data.kelas);
                         localStorage.setItem('role', data.role); // 'siswa' atau 'admin'
@@ -319,7 +320,7 @@
                 .catch(error => {
                     btnLogin.innerHTML = 'Login';
                     btnLogin.disabled = false;
-                    alert("Gagal terhubung ke database. Jika Anda membuka file ini langsung dari komputer (file:///...), cobalah gunakan ekstensi 'Live Server' di VS Code atau upload ke hosting (seperti GitHub Pages) terlebih dahulu.");
+                    alert("Gagal terhubung ke database. Pastikan koneksi internet Anda stabil.");
                     console.error('Error:', error);
                 });
         });
