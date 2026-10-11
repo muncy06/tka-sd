@@ -178,7 +178,7 @@
         }
         .btn-submit-exam:hover { background: #059669; }
 
-        /* SCREEN HASIL */
+        /* SCREEN HASIL (DIPERBARUI) */
         #result-container {
             display: none; justify-content: center; align-items: center; width: 100vw; height: 100vh;
             background: #f8fafc; position: fixed; top: 0; left: 0; z-index: 1000; overflow-y: auto; padding: 20px;
@@ -187,9 +187,14 @@
             background: white; border-radius: 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.1);
             padding: 35px 25px; max-width: 520px; width: 100%; text-align: center; margin: auto;
         }
-        .result-info { background: #f1f5f9; border-left: 5px solid #0d6efd; padding: 15px; border-radius: 10px; text-align: left; margin: 20px 0;}
+        .result-info { background: #f1f5f9; border-left: 5px solid #0d6efd; padding: 20px; border-radius: 12px; text-align: left; margin: 20px 0;}
         .result-info p { margin-bottom: 8px; font-size: 15px; color: #334155;}
         
+        .score-box { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px dashed #cbd5e1; padding-top: 15px; }
+        .score-box div { text-align: center; flex: 1; }
+        .score-box p.title { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+        .score-box p.value { font-size: 20px; font-weight: 800; }
+
         .badge { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; color: white; display: inline-block;}
         .badge-hijau { background: #10b981; } .badge-kuning { background: #f59e0b; color: #fff; }
         .badge-orange { background: #f97316; } .badge-merah { background: #ef4444; }
@@ -202,39 +207,20 @@
             .header-left img { width: 36px; height: 36px; }
             .header-left h1 { font-size: 15px; }
             .header-left p { font-size: 11px; }
-
             .header-right { display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; }
-            .header-right .nama { font-size: 14px; }
-            .header-right .kelas { font-size: 12px; }
-
             .main-wrapper { padding: 8px; overflow: hidden; }
             .container { flex-direction: column; gap: 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
             .question-area { flex: none; height: auto; min-height: 380px; }
-            .q-header { padding: 12px 15px; }
-            .q-badge { font-size: 14px; padding: 4px 12px; }
-            .q-body { padding: 15px; }
-            .q-text { font-size: 15px; line-height: 1.6; margin-bottom: 18px; }
-            .option-item { padding: 12px 15px; font-size: 14px; }
-            .q-navigation { padding: 12px 15px; }
-            .btn-nav { padding: 8px 16px; font-size: 14px; }
-
             .sidebar { flex: none; height: auto; min-width: 100%; }
-            .sidebar-header { padding: 12px; }
             .sidebar-body { max-height: 160px; padding: 12px; }
             .number-grid { grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 8px; }
-            .btn-num { font-size: 13px; }
-            .sidebar-footer { padding: 12px; }
-
-            .full-overlay .card { padding: 25px 18px; }
-            .full-overlay .card h2 { font-size: 22px !important; }
-            #liveClock { font-size: 32px !important; }
-            .result-card { padding: 25px 15px; }
+            .score-box p.title { font-size: 10px; }
+            .score-box p.value { font-size: 16px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- OVERLAY 1: SIAP UJIAN -->
     <div id="start-overlay" class="full-overlay">
         <div class="card">
             <h2 style="margin-bottom: 10px; color: #0d47a1; font-size: 28px;"><i class="fas fa-desktop"></i> Ujian Terpadu CBT</h2>
@@ -248,7 +234,6 @@
         </div>
     </div>
 
-    <!-- OVERLAY 2: WAITING ROOM -->
     <div id="waiting-modal" class="full-overlay" style="display: none; background: rgba(15, 23, 42, 0.98);">
         <div class="card" style="text-align: center;">
             <i class="fas fa-shield-alt" style="font-size: 55px; color: #0d6efd; margin-bottom: 15px;"></i>
@@ -270,7 +255,6 @@
         </div>
     </div>
 
-    <!-- OVERLAY 3: PERINGATAN KELUAR FULLSCREEN -->
     <div id="warning-overlay" class="full-overlay" style="display: none; background: rgba(220, 53, 69, 0.95);">
         <div class="card" style="box-shadow: 0 0 0 4px rgba(255,255,255,0.3);">
             <h2 style="margin-bottom: 12px; color: #dc3545; font-size: 28px;"><i class="fas fa-exclamation-triangle"></i> PERINGATAN!</h2>
@@ -280,7 +264,6 @@
         </div>
     </div>
 
-    <!-- CUSTOM MODAL -->
     <div id="custom-modal">
         <div class="modal-box">
             <div class="modal-icon" id="modalIcon"><i class="fas fa-question-circle"></i></div>
@@ -290,7 +273,6 @@
         </div>
     </div>
 
-    <!-- MODAL EXIT PASSWORD -->
     <div id="exit-modal">
         <div class="modal-box">
             <div class="modal-icon"><i class="fas fa-lock" style="color: #dc3545;"></i></div>
@@ -307,7 +289,6 @@
         </div>
     </div>
 
-    <!-- HEADER -->
     <div class="header">
         <div class="header-left">
             <img src="logo.png" alt="Logo" onerror="this.src='https://via.placeholder.com/50/ffffff/000000?text=Logo'">
@@ -322,11 +303,9 @@
         </div>
     </div>
 
-    <!-- KONTEN UTAMA -->
     <div class="main-wrapper" id="main-container">
         <div class="container">
             
-            <!-- Area Soal (Kiri) -->
             <div class="question-area">
                 <div class="q-header">
                     <div class="q-badge" id="qNumberBadge">Soal No. 1</div>
@@ -348,7 +327,6 @@
                 </div>
             </div>
 
-            <!-- Area Navigasi Sidebar (Kanan) -->
             <div class="sidebar">
                 <div class="sidebar-header">
                     <h3><i class="fas fa-th-large"></i> Peta Soal</h3>
@@ -367,24 +345,35 @@
         </div>
     </div>
 
-    <!-- SCREEN HASIL -->
+    <!-- SCREEN HASIL (DIPERBARUI) -->
     <div id="result-container">
         <div class="result-card">
             <h2 style="color: #10b981; font-size: 26px; margin-bottom: 8px;"><i class="fas fa-check-circle"></i> Ujian Selesai!</h2>
-            <p style="color: #64748b; font-size: 14px;">Jawaban Anda telah tersimpan rapi ke server sekolah.</p>
+            <p style="color: #64748b; font-size: 14px;">Jawaban Anda telah dievaluasi oleh sistem.</p>
             
             <div class="result-info">
                 <p><b>Nama :</b> <span id="resNama">-</span></p>
                 <p><b>NISN :</b> <span id="resNisn">-</span></p>
-                <p style="margin-top: 12px; border-top: 1px solid #cbd5e1; padding-top: 12px;">
-                    <b>Skor Ujian :</b> <span id="resNilai" style="font-size: 22px; font-weight: 800; color: #0d47a1;">0</span>
-                </p>
-                <p style="margin-top: 8px; font-size: 13px; color: #f59e0b;">
-                    <i class="fas fa-info-circle"></i> Nilai esai telah dievaluasi oleh sistem AI grading.
-                </p>
+                
+                <div class="score-box">
+                    <div style="border-right: 1px solid #cbd5e1;">
+                        <p class="title">Nilai Pilgan</p>
+                        <p class="value" id="resPilgan" style="color: #0d6efd;">0</p>
+                    </div>
+                    <div style="border-right: 1px solid #cbd5e1;">
+                        <p class="title">Bonus Esai</p>
+                        <p class="value" id="resEsai" style="color: #f59e0b;">+0</p>
+                    </div>
+                    <div>
+                        <p class="title">Skor Akhir</p>
+                        <p class="value" id="resNilai" style="color: #10b981;">0</p>
+                    </div>
+                </div>
+
+                <p style="margin-top: 15px; font-size: 13px; text-align: center;" id="resStatus">-</p>
             </div>
 
-            <h4 style="color: #475569; margin-bottom: 12px; font-size: 15px;">Grafik Rasio Penilaian</h4>
+            <h4 style="color: #475569; margin-bottom: 12px; font-size: 15px;">Grafik Komposisi Poin</h4>
             <div style="width: 180px; height: 180px; margin: 0 auto 25px auto;">
                 <canvas id="studentResultChart"></canvas>
             </div>
@@ -485,6 +474,7 @@
         async function checkExamStatusFromAdmin() {
             var formData = new FormData();
             formData.append('action', 'getStatusUjian');
+            formData.append('nisn', nisnSiswa);
             try {
                 var res = await fetch(scriptURL, { method: 'POST', body: formData });
                 var data = await res.json();
@@ -496,11 +486,16 @@
                     var btnBegin = document.getElementById('btnBeginExam');
                     var labelPaket = serverPaket ? serverPaket.replace('_', ' ') : 'PAKET';
 
-                    // CEK LOGIKA ANTI-RETAKE (KUNCI JIKA SUDAH PERNAH SELESAI PAKET INI)
+                    var logUjianSiswa = data.log_siswa_selesai || false; 
                     var keySelesai = 'selesai_' + serverPaket + '_' + nisnSiswa;
-                    var isSelesai = localStorage.getItem(keySelesai) === 'true';
+                    var isSelesaiLokal = localStorage.getItem(keySelesai) === 'true';
 
-                    if (isSelesai) {
+                    if (!logUjianSiswa && isSelesaiLokal) {
+                        localStorage.removeItem(keySelesai);
+                        isSelesaiLokal = false;
+                    }
+
+                    if (isSelesaiLokal || logUjianSiswa) {
                         statusEl.innerHTML = '<span style="color:#ef4444; font-weight:bold;"><i class="fas fa-ban"></i> Anda sudah menyelesaikan ujian ' + labelPaket + '</span>';
                         btnBegin.disabled = true;
                         btnBegin.innerHTML = '<i class="fas fa-check-double"></i> Ujian Selesai';
@@ -513,7 +508,7 @@
                     } else {
                         statusEl.innerHTML = '<span style="color:#ef4444; font-weight:bold;"><i class="fas fa-lock"></i> Ujian Ditutup Panitia (' + labelPaket + ')</span>';
                         btnBegin.disabled = true;
-                        btnBegin.innerHTML = '<i class="fas fa-hourglass-half"></i> Menunggu Panitia Membuka Ujian...';
+                        btnBegin.innerHTML = '<i class="fas fa-hourglass-half"></i> Menunggu Panitia...';
                         btnBegin.style.background = '#64748b';
                     }
                 }
@@ -532,7 +527,6 @@
                 return;
             }
 
-            // AUTO-SAVE LOCAL STORAGE RESTORE (Mencegah jawaban hilang jika browser refresh)
             var saveKey = 'answers_' + serverPaket + '_' + nisnSiswa;
             var savedAns = localStorage.getItem(saveKey);
             if (savedAns) {
@@ -561,7 +555,6 @@
             document.getElementById('warning-overlay').style.display = 'none';
         }
 
-        // FUNGSI RENDER SOAL 
         function renderQuestion(index) {
             currentQuestionIndex = index;
             var q = examData[index];
@@ -606,7 +599,6 @@
             updateActiveNumber(index);
         }
 
-        // MENYIMPAN JAWABAN PILIHAN GANDA
         function saveRadioAnswer(soalId, answerVal) {
             userAnswers[soalId] = answerVal;
             
@@ -623,7 +615,6 @@
             debounceSendProgress();
         }
 
-        // MENYIMPAN JAWABAN URAIAN
         function handleEssayTyping(soalId, textVal) {
             userAnswers[soalId] = textVal;
             
@@ -714,7 +705,6 @@
             if (target) target.classList.add('active');
         }
 
-        // ANTI CHEAT (Deteksi keluar tab/fullscreen)
         document.addEventListener('visibilitychange', function() {
             if (isExamFinished) return;
             var startVisible = document.getElementById('start-overlay').style.display !== 'none';
@@ -767,17 +757,16 @@
                     if (data.status === 'success') {
                         isExamFinished = true;
                         
-                        // KUNCI PAKET INI AGAR TIDAK BISA DIKERJAKAN ULANG PADA DEVICE INI
                         if (serverPaket && nisnSiswa) {
                             var keySelesai = 'selesai_' + serverPaket + '_' + nisnSiswa;
                             localStorage.setItem(keySelesai, 'true');
                             
-                            // Bersihkan cache Auto-Save untuk menghemat memori device
                             var saveKey = 'answers_' + serverPaket + '_' + nisnSiswa;
                             localStorage.removeItem(saveKey);
                         }
 
-                        tampilkanHasilSiswa(data.nilai);
+                        // Kirim 3 argumen nilai: nilaiAkhir(Total), nilaiPG, nilaiEsai
+                        tampilkanHasilSiswa(data.nilai, data.nilai_pg, data.nilai_esai);
                     } else {
                         showModal('alert', 'Gagal', 'Terjadi kendala penyimpanan: ' + data.message);
                     }
@@ -794,26 +783,34 @@
             return '<span class="badge badge-merah">Kurang Baik</span>';
         }
 
-        function tampilkanHasilSiswa(nilaiAkhir) {
+        function tampilkanHasilSiswa(nilaiAkhir, nilaiPG, nilaiEsai) {
+            nilaiAkhir = nilaiAkhir || 0;
+            nilaiPG = nilaiPG !== undefined ? nilaiPG : nilaiAkhir;
+            nilaiEsai = nilaiEsai || 0;
+
             document.getElementById('main-container').style.display = 'none';
             document.getElementById('result-container').style.display = 'flex';
 
             document.getElementById('resNama').innerText = localStorage.getItem('namaSiswa');
             document.getElementById('resNisn').innerText = nisnSiswa;
+            
+            document.getElementById('resPilgan').innerText = nilaiPG;
+            document.getElementById('resEsai').innerText = '+' + nilaiEsai;
             document.getElementById('resNilai').innerText = nilaiAkhir;
+
             document.getElementById('resStatus').innerHTML = getStatusBadge(nilaiAkhir);
 
-            var benar = parseFloat(nilaiAkhir) || 0;
-            var salah = 100 - benar;
+            var sisaPG = 100 - nilaiPG;
+            if (sisaPG < 0) sisaPG = 0;
+
             var ctx = document.getElementById('studentResultChart').getContext('2d');
-            
             new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Benar (%)', 'Salah / Kosong (%)'],
+                    labels: ['Skor Pilgan Diraih', 'Skor Esai Diraih', 'Poin Pilgan Hilang'],
                     datasets: [{
-                        data: [benar, salah],
-                        backgroundColor: ['#10b981', '#ef4444'],
+                        data: [nilaiPG, nilaiEsai, sisaPG],
+                        backgroundColor: ['#0d6efd', '#f59e0b', '#e2e8f0'],
                         borderWidth: 2, borderColor: '#f8fafc'
                     }]
                 },
@@ -831,7 +828,6 @@
         function verifyExit() {
             var pass = document.getElementById('exitPassword').value.trim();
             if (pass === '2026') {
-                // Menghapus kredensial login, tetapi mempertahankan variabel identitas dan kunci paket ujian
                 localStorage.removeItem('isLoggedIn');
                 localStorage.removeItem('role');
                 window.location.href = 'index.html';
