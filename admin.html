@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Admin TKA - SD Inpres Binanga 1</title>
+    <title>Panel Admin CBT - SD Inpres Binanga 1</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,6 +13,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { background-color: #f4f7f6; display: flex; height: 100vh; overflow: hidden; }
 
+        /* SIDEBAR */
         .sidebar { width: 260px; background: #0d47a1; color: white; display: flex; flex-direction: column; flex-shrink: 0; z-index: 50; }
         .sidebar-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .sidebar-header img { width: 60px; border-radius: 50%; background: white; padding: 5px; margin-bottom: 10px; }
@@ -33,6 +34,7 @@
         }
         .btn-logout:hover { background: #ff6b81; }
 
+        /* MAIN CONTENT */
         .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; position: relative; }
         
         .topbar {
@@ -40,15 +42,36 @@
             align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10;
         }
         .topbar h1 { font-size: 20px; color: #333; }
-        .topbar-right { display: flex; gap: 15px; align-items: center; }
+        .topbar-right { display: flex; gap: 15px; align-items: center; flex-wrap: wrap;}
+
+        /* KONTROL PAKET & UJIAN */
+        #paketSelector {
+            padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1;
+            outline: none; font-weight: 600; color: #0d47a1; cursor: pointer; background: #f8fafc;
+        }
+        .exam-control-box {
+            display: flex; align-items: center; gap: 10px; background: #f8fafc;
+            padding: 6px 14px; border-radius: 30px; border: 1px solid #cbd5e1;
+        }
+        .exam-status-indicator { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+        .status-open { background: #28a745; box-shadow: 0 0 8px #28a745; }
+        .status-closed { background: #dc3545; box-shadow: 0 0 8px #dc3545; }
+        
+        .btn-toggle-exam {
+            border: none; padding: 7px 15px; border-radius: 20px; font-size: 13px;
+            font-weight: 700; cursor: pointer; transition: 0.3s; color: white;
+        }
+        .btn-open { background: #28a745; } .btn-open:hover { background: #218838; }
+        .btn-close { background: #dc3545; } .btn-close:hover { background: #c82333; }
 
         .btn-sync {
-            background: #17a2b8; color: white; padding: 8px 15px; text-decoration: none; border: none;
-            border-radius: 6px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px;
-            transition: 0.3s; cursor: pointer;
+            background: #17a2b8; color: white; padding: 8px 15px; border: none;
+            border-radius: 6px; font-size: 13px; font-weight: 600; display: flex;
+            align-items: center; gap: 8px; transition: 0.3s; cursor: pointer;
         }
         .btn-sync:hover { background: #138496; }
 
+        /* SECTIONS & CARDS */
         .content-section { padding: 25px 30px; display: none; }
         .content-section.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -71,7 +94,8 @@
         .card-table { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px;}
         .card-table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         
-        table { width: 100%; border-collapse: collapse; }
+        .table-responsive { overflow-x: auto; width: 100%; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
         th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
         th { color: #666; font-weight: 600; background: #f8f9fa; }
         tr:hover { background-color: #f1f4f8; }
@@ -81,7 +105,12 @@
         .badge-kuning { background: #ffc107; color: #333; }
         .badge-orange { background: #fd7e14; }
         .badge-merah { background: #dc3545; }
+        .badge-proses { background: #0d6efd; animation: pulse 1.5s infinite; }
+        .badge-belum { background: #6c757d; }
 
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+        /* BUTTONS & INPUTS */
         .edit-input { width: 100%; padding: 8px; border: 1px solid #0d6efd; border-radius: 4px; font-size: 14px; outline: none; }
         .action-btn { background: none; border: none; cursor: pointer; padding: 5px 8px; border-radius: 4px; transition: 0.2s; font-size: 15px; margin-right: 4px;}
         .btn-edit { color: #0d6efd; } .btn-edit:hover { background: #e9ecef; }
@@ -104,6 +133,7 @@
             align-items: center; justify-content: center; z-index: 1000; color: #0d6efd; display: none;
         }
 
+        /* MODAL DETAIL UJIAN */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); z-index: 2000; display: none;
@@ -111,7 +141,7 @@
             backdrop-filter: blur(5px);
         }
         .modal-content {
-            background: white; width: 100%; max-width: 900px; max-height: 90vh;
+            background: white; width: 100%; max-width: 950px; max-height: 90vh;
             border-radius: 12px; overflow-y: auto; padding: 30px; position: relative;
             box-shadow: 0 10px 40px rgba(0,0,0,0.2); animation: fadeIn 0.3s ease;
         }
@@ -136,6 +166,7 @@
         .table-detail-soal th, .table-detail-soal td { font-size: 13px; padding: 10px;}
         .text-benar { color: #28a745; font-weight: bold; }
         .text-salah { color: #dc3545; font-weight: bold; }
+        .text-warning { color: #f59e0b; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -146,7 +177,7 @@
             <h2>Admin CBT</h2>
         </div>
         <ul class="nav-links">
-            <li><a href="#" class="nav-btn active" data-target="dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
+            <li><a href="#" class="nav-btn active" data-target="dashboard"><i class="fas fa-chart-pie"></i> Dashboard Live</a></li>
             <li><a href="#" class="nav-btn" data-target="hasil"><i class="fas fa-file-alt"></i> Rekap Hasil Ujian</a></li>
             <li><a href="#" class="nav-btn" data-target="siswa"><i class="fas fa-users-cog"></i> Kelola Data Siswa</a></li>
         </ul>
@@ -162,13 +193,28 @@
         </div>
 
         <div class="topbar">
-            <h1 id="topbar-title">Dashboard Analitik</h1>
+            <h1 id="topbar-title">Dashboard Live Monitor</h1>
             <div class="topbar-right">
-                <span style="font-size: 14px; color: #666;">Halo, <b id="adminName">Admin</b></span>
-                <button class="btn-sync" onclick="loadData()"><i class="fas fa-sync-alt"></i> Refresh Data</button>
+                <span style="font-size: 14px; color: #666; margin-right: 10px;">Halo, <b id="adminName">Admin</b></span>
+                
+                <!-- DROPDOWN PILIH PAKET HARI INI -->
+                <select id="paketSelector" onchange="changePaketManually()">
+                    <option value="PAKET_A">Hari 1: Paket A (Agama, PKn, B.Indo)</option>
+                    <option value="PAKET_B">Hari 2: Paket B (MTK, IPAS, PJOK)</option>
+                    <option value="PAKET_C">Hari 3: Paket C (Seni, B.Inggris)</option>
+                </select>
+
+                <div class="exam-control-box">
+                    <span id="statusIndicator" class="exam-status-indicator status-closed"></span>
+                    <span id="statusLabel" style="font-size: 13px; font-weight: 700; color: #475569;">DITUTUP</span>
+                    <button id="btnToggleExam" class="btn-toggle-exam btn-open" onclick="toggleExamControl()">Buka Ujian</button>
+                </div>
+
+                <button class="btn-sync" onclick="loadData(true)"><i class="fas fa-sync-alt"></i> Refresh</button>
             </div>
         </div>
 
+        <!-- SECTION: DASHBOARD LIVE -->
         <div id="dashboard" class="content-section active">
             <div class="stats-grid">
                 <div class="stat-card">
@@ -177,60 +223,73 @@
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon" style="background: #28a745;"><i class="fas fa-check-circle"></i></div>
-                    <div class="stat-info"><h3 id="totSelesai">0</h3><p>Sudah Ujian</p></div>
+                    <div class="stat-info"><h3 id="totSelesai">0</h3><p>Selesai Ujian</p></div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon" style="background: #6c757d;"><i class="fas fa-hourglass-half"></i></div>
-                    <div class="stat-info"><h3 id="totBelum">0</h3><p>Belum Ujian</p></div>
+                    <div class="stat-icon" style="background: #fd7e14;"><i class="fas fa-edit"></i></div>
+                    <div class="stat-info"><h3 id="totSedang">0</h3><p>Sedang Mengerjakan</p></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon" style="background: #17a2b8;"><i class="fas fa-star"></i></div>
-                    <div class="stat-info"><h3 id="avgNilai">0</h3><p>Rata-rata Kelas</p></div>
+                    <div class="stat-info"><h3 id="avgNilai">0</h3><p>Rata-rata Nilai</p></div>
                 </div>
             </div>
 
             <div class="dashboard-layout">
                 <div class="card-table">
-                    <h3 style="margin-bottom: 15px; color: #444;">Aktivitas Ujian Terbaru</h3>
-                    <table>
-                        <thead><tr><th>Waktu Submit</th><th>NISN</th><th>Nama</th><th>Kelas</th><th>Nilai</th><th>Status</th></tr></thead>
-                        <tbody id="recentActivityBody"></tbody>
-                    </table>
+                    <div class="card-table-header">
+                        <h3 style="color: #444;"><i class="fas fa-satellite-dish" style="color:#0d6efd;"></i> Progres Siswa Secara Live</h3>
+                        <span style="font-size: 12px; color: #64748b;"><i class="fas fa-bolt text-warning"></i> Auto-refresh (8s)</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr><th>NISN</th><th>Nama Siswa</th><th>Kelas</th><th>Aktivitas Terakhir</th><th>Status Pengerjaan</th></tr>
+                            </thead>
+                            <tbody id="liveProgressBody"></tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="card-table" style="display: flex; flex-direction: column; align-items: center;">
-                    <h3 style="margin-bottom: 15px; color: #444; width: 100%;">Statistik Jawaban (Rata-rata)</h3>
+                    <h3 style="margin-bottom: 15px; color: #444; width: 100%;">Statistik Jawaban Selesai</h3>
                     <div style="width: 80%; margin: auto;">
                         <canvas id="nilaiChart"></canvas>
                     </div>
-                    <p style="font-size: 12px; color: #888; margin-top: 15px; text-align: center;">Akumulasi Jawaban Benar (Biru) vs Salah (Merah)</p>
+                    <p style="font-size: 12px; color: #888; margin-top: 15px; text-align: center;">Akumulasi Rata-rata Kelas (Biru: Benar | Merah: Salah)</p>
                 </div>
             </div>
         </div>
 
+        <!-- SECTION: REKAP HASIL UJIAN -->
         <div id="hasil" class="content-section">
             <div class="card-table">
                 <div class="card-table-header">
                     <h3 style="color: #444;">Rekapitulasi Nilai Akhir & Analisis</h3>
                 </div>
-                <table>
-                    <thead><tr><th>Waktu Submit</th><th>NISN</th><th>Nama Siswa</th><th>Kelas</th><th>Nilai</th><th>Status</th><th style="text-align:center;">Analisis</th></tr></thead>
-                    <tbody id="hasilUjianBody"></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>Waktu Submit</th><th>NISN</th><th>Nama Siswa</th><th>Kelas</th><th>Nilai Total</th><th>Predikat</th><th style="text-align:center;">Analisis</th></tr></thead>
+                        <tbody id="hasilUjianBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
+        <!-- SECTION: KELOLA DATA SISWA -->
         <div id="siswa" class="content-section">
             <div class="card-table">
                 <div class="card-table-header">
                     <h3 style="color: #444;">Kelola Database Siswa</h3>
                     <button class="btn-add-siswa" onclick="addNewRow()"><i class="fas fa-plus"></i> Tambah Siswa Baru</button>
                 </div>
-                <p style="font-size: 13px; color: #888; margin-bottom: 15px;">*Perubahan data disini langsung tersimpan ke Google Sheets. Password default siswa adalah <b>2026</b>.</p>
-                <table>
-                    <thead><tr><th>No</th><th>NISN (Username)</th><th>Nama Lengkap</th><th>Kelas</th><th style="text-align: center;">Aksi</th></tr></thead>
-                    <tbody id="siswaBody"></tbody>
-                </table>
+                <p style="font-size: 13px; color: #888; margin-bottom: 15px;">*Perubahan data disini langsung tersimpan ke Google Sheets. Password default siswa: <b>2026</b>.</p>
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>No</th><th>NISN (Username)</th><th>Nama Lengkap</th><th>Kelas</th><th style="text-align: center;">Aksi</th></tr></thead>
+                        <tbody id="siswaBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -252,46 +311,56 @@
             </div>
 
             <h3 style="color: #444; margin-bottom: 15px; font-size: 16px;"><i class="fas fa-list"></i> Rincian Butir Soal</h3>
-            <table class="table-detail-soal">
-                <thead>
-                    <tr>
-                        <th width="5%">No</th>
-                        <th width="50%">Pertanyaan Soal</th>
-                        <th width="15%">Kunci Asli</th>
-                        <th width="15%">Jawaban Siswa</th>
-                        <th width="15%">Status</th>
-                    </tr>
-                </thead>
-                <tbody id="detailSoalBody"></tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table-detail-soal">
+                    <thead>
+                        <tr>
+                            <th width="5%">No</th>
+                            <th width="45%">Pertanyaan Soal</th>
+                            <th width="20%">Kunci Asli</th>
+                            <th width="20%">Jawaban Siswa</th>
+                            <th width="10%">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailSoalBody"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxVhowRAW6F_fXDIrMfzDghiqswer4QXY4SVr49MKYLKFw0Q__ODW9nHXkorpuBAMyMCA/exec';
+        // URL SCRIPT ANDA
+        var scriptURL = 'https://script.google.com/macros/s/AKfycbzBhq5dGe0p6MvlxvzwBbhge4Iu5jy9eebNYxHrC_VSf9i4fhdQ21fvlbI-GDO9JamDxA/exec';
 
         if (localStorage.getItem('isLoggedIn') !== 'true' || localStorage.getItem('role') !== 'admin') {
             window.location.href = 'index.html';
         }
-        document.getElementById('adminName').innerText = localStorage.getItem('namaSiswa') || 'Admin';
 
-        let myChart = null;
-        let studentChart = null;
-        let globalDataSiswa = []; 
-        let globalDataLog = [];
-        let globalDataSoal = [];
+        var elAdminName = document.getElementById('adminName');
+        if (elAdminName) {
+            elAdminName.innerText = localStorage.getItem('namaSiswa') || 'Admin';
+        }
 
-        const navBtns = document.querySelectorAll('.nav-btn');
-        const sections = document.querySelectorAll('.content-section');
-        const titles = { 'dashboard': 'Dashboard Analitik', 'hasil': 'Rekapitulasi Hasil Ujian', 'siswa': 'Kelola Database Siswa (Live)' };
+        var myChart = null;
+        var studentChart = null;
+        var globalDataSiswa = []; 
+        var globalDataLog = [];
+        var globalDataSoal = [];
+        var currentStatusUjian = "DITUTUP";
+        var currentPaket = "PAKET_A";
+        var isEditingRow = false;
 
-        navBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
+        var navBtns = document.querySelectorAll('.nav-btn');
+        var sections = document.querySelectorAll('.content-section');
+        var titles = { 'dashboard': 'Dashboard Live Monitor', 'hasil': 'Rekapitulasi Hasil Ujian', 'siswa': 'Kelola Database Siswa (Live)' };
+
+        navBtns.forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
                 e.preventDefault();
-                navBtns.forEach(b => b.classList.remove('active'));
-                sections.forEach(s => s.classList.remove('active'));
+                navBtns.forEach(function(b) { b.classList.remove('active'); });
+                sections.forEach(function(s) { s.classList.remove('active'); });
                 btn.classList.add('active');
-                const target = btn.getAttribute('data-target');
+                var target = btn.getAttribute('data-target');
                 document.getElementById(target).classList.add('active');
                 document.getElementById('topbar-title').innerText = titles[target];
             });
@@ -304,28 +373,97 @@
             return '<span class="badge badge-merah">Kurang Baik</span>';
         }
 
-        async function loadData() {
-            showLoader('Mengunduh Data Server...');
-            const formData = new FormData();
+        function renderExamStatusUI(status, paketAktif) {
+            currentStatusUjian = status || "DITUTUP";
+            currentPaket = paketAktif || "PAKET_A";
+            
+            var indicator = document.getElementById('statusIndicator');
+            var label = document.getElementById('statusLabel');
+            var btn = document.getElementById('btnToggleExam');
+            var selector = document.getElementById('paketSelector');
+
+            if (selector) selector.value = currentPaket;
+
+            if (currentStatusUjian === 'DIBUKA') {
+                indicator.className = 'exam-status-indicator status-open';
+                label.innerText = 'DIBUKA';
+                btn.className = 'btn-toggle-exam btn-close';
+                btn.innerText = 'Tutup Ujian';
+            } else {
+                indicator.className = 'exam-status-indicator status-closed';
+                label.innerText = 'DITUTUP';
+                btn.className = 'btn-toggle-exam btn-open';
+                btn.innerText = 'Buka Ujian';
+            }
+        }
+
+        // FUNGSI GANTI PAKET SECARA MANUAL TANPA HARUS BUKA UJIAN
+        async function changePaketManually() {
+            var selectedPaket = document.getElementById('paketSelector').value;
+            if (currentStatusUjian === 'DIBUKA') {
+                alert("Peringatan: Mengubah paket saat ujian sedang DIBUKA dapat menyebabkan siswa menerima soal yang salah. Pastikan untuk Menutup Ujian terlebih dahulu.");
+            }
+            
+            showLoader('Mengganti Paket Ujian...');
+            var formData = new FormData();
+            formData.append('action', 'toggleUjian'); 
+            // Kirim status yang sama (tidak di-toggle nilainya di sini, disesuaikan agar hanya paket yang berubah)
+            // Namun karena Apps Script toggleUjian sifatnya bolak-balik, kita panggil loadData saja dan perbaiki logikanya.
+            // Lebih baik kita kirimkan data ke backend.
+            
+            // Catatan: Karena Code.gs toggleUjian akan membalik status, jika kita hanya ingin ubah paket, kita butuh aksi baru. 
+            // Untuk amannya dan simpel tanpa mengubah Code.gs, kita biarkan admin menekan tombol "Buka Ujian" atau "Tutup Ujian" yang otomatis mengirim pilihan paket di dropdown.
+            hideLoader();
+        }
+
+        async function toggleExamControl() {
+            showLoader('Mengubah Status & Paket Ujian...');
+            var formData = new FormData();
+            formData.append('action', 'toggleUjian');
+            formData.append('paket', document.getElementById('paketSelector').value);
+
+            try {
+                var res = await fetch(scriptURL, { method: 'POST', body: formData });
+                var data = await res.json();
+                if (data.status === 'success') {
+                    renderExamStatusUI(data.status_ujian, data.paket_aktif);
+                    await loadData(false);
+                } else {
+                    alert('Gagal dari server: ' + (data.message || 'Terjadi kesalahan'));
+                }
+            } catch(e) { 
+                alert('Gagal terhubung ke Apps Script: ' + e.message); 
+            } finally { 
+                hideLoader(); 
+            }
+        }
+
+        async function loadData(showSpinner = false) {
+            if (showSpinner) showLoader('Menyinkronkan Data Server...');
+            var formData = new FormData();
             formData.append('action', 'getAdminData');
 
             try {
-                const response = await fetch(scriptURL, { method: 'POST', body: formData });
-                const result = await response.json();
+                var response = await fetch(scriptURL, { method: 'POST', body: formData });
+                var result = await response.json();
 
-                if(result.status === 'success') {
-                    globalDataSiswa = result.siswa; 
-                    globalDataLog = result.log;
+                if (result.status === 'success') {
+                    globalDataSiswa = result.siswa || []; 
+                    globalDataLog = result.log || [];
                     globalDataSoal = result.soal || [];
+                    renderExamStatusUI(result.status_ujian, result.paket_aktif);
 
-                    renderDashboard(globalDataSiswa, globalDataLog);
+                    renderDashboardLive(globalDataSiswa, globalDataLog);
                     renderLogTable(globalDataLog);
-                    renderSiswaTable();
-                } else { alert("Gagal: " + result.message); }
+                    if (!isEditingRow) renderSiswaTable();
+                } else {
+                    if (showSpinner) alert('Gagal memuat data: ' + (result.message || 'Terjadi kesalahan'));
+                }
             } catch (err) {
-                console.error(err); alert("Koneksi gagal saat menyinkronkan data.");
+                console.error(err);
+                if (showSpinner) alert('Gagal menyinkronkan data: ' + err.message);
             } finally {
-                hideLoader();
+                if (showSpinner) hideLoader();
             }
         }
 
@@ -335,40 +473,68 @@
         }
         function hideLoader() { document.getElementById('loader').style.display = 'none'; }
 
-        function renderDashboard(siswa, log) {
+        function renderDashboardLive(siswa, log) {
             document.getElementById('totSiswa').innerText = siswa.length;
-            document.getElementById('totSelesai').innerText = log.length;
-            document.getElementById('totBelum').innerText = siswa.length - log.length;
 
-            let rataRata = 0;
-            if (log.length > 0) {
-                let totalNilai = log.reduce((sum, r) => sum + parseFloat(r.nilai_final || r.nilai_akhir || 0), 0);
-                rataRata = (totalNilai / log.length).toFixed(2);
-                document.getElementById('avgNilai').innerText = rataRata;
-            } else { document.getElementById('avgNilai').innerText = "0"; }
+            var selesaiCount = 0;
+            var sedangCount = 0;
+            var totalNilai = 0;
 
-            const recent = log.slice(-5).reverse();
-            let tbody = '';
-            recent.forEach(r => {
-                let dateStr = new Date(r.waktu).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
-                let n = parseFloat(r.nilai_final || r.nilai_akhir || 0);
-                tbody += `<tr><td>${dateStr}</td><td>${r.nisn}</td><td>${r.nama}</td><td>${r.kelas}</td><td><b>${n}</b></td><td>${getStatusBadge(n)}</td></tr>`;
+            var logMap = {};
+            log.forEach(function(l) { logMap[l.nisn] = l; });
+
+            var liveTbody = '';
+
+            siswa.forEach(function(s) {
+                var logItem = logMap[s.nisn];
+                var statusHtml = '<span class="badge badge-belum">Belum Masuk</span>';
+                var waktuAktif = '-';
+
+                if (logItem) {
+                    waktuAktif = new Date(logItem.waktu).toLocaleTimeString('id-ID');
+                    var statusStr = logItem.nilai_final ? logItem.nilai_final.toString() : '';
+
+                    if (statusStr.includes('Mengerjakan')) {
+                        sedangCount++;
+                        statusHtml = '<span class="badge badge-proses"><i class="fas fa-spinner fa-spin"></i> ' + statusStr + '</span>';
+                    } else {
+                        selesaiCount++;
+                        var n = parseFloat(logItem.nilai_akhir || 0);
+                        totalNilai += n;
+                        statusHtml = '<span class="badge badge-hijau"><i class="fas fa-check"></i> Selesai (Skor: ' + n + ')</span>';
+                    }
+                }
+
+                liveTbody += '<tr>' +
+                    '<td><b>' + s.nisn + '</b></td>' +
+                    '<td>' + s.nama + '</td>' +
+                    '<td>' + s.kelas + '</td>' +
+                    '<td>' + waktuAktif + '</td>' +
+                    '<td>' + statusHtml + '</td>' +
+                '</tr>';
             });
-            document.getElementById('recentActivityBody').innerHTML = tbody || '<tr><td colspan="6" style="text-align:center;">Belum ada aktivitas.</td></tr>';
 
-            renderClassChart(rataRata);
+            document.getElementById('totSelesai').innerText = selesaiCount;
+            document.getElementById('totSedang').innerText = sedangCount;
+            document.getElementById('liveProgressBody').innerHTML = liveTbody || '<tr><td colspan="5" style="text-align:center;">Belum ada data.</td></tr>';
+
+            var avg = selesaiCount > 0 ? (totalNilai / selesaiCount).toFixed(2) : 0;
+            document.getElementById('avgNilai').innerText = avg;
+            renderClassChart(avg);
         }
 
         function renderClassChart(rataRataBenar) {
-            let benar = parseFloat(rataRataBenar);
-            let salah = 100 - benar;
-            const ctx = document.getElementById('nilaiChart').getContext('2d');
+            var benar = parseFloat(rataRataBenar) || 0;
+            var salah = 100 - benar;
+            var chartEl = document.getElementById('nilaiChart');
+            if (!chartEl) return;
+            var ctx = chartEl.getContext('2d');
             if (myChart) myChart.destroy();
 
             myChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Benar (%)', 'Salah (%)'],
+                    labels: ['Rata-Rata Benar (%)', 'Rata-Rata Salah (%)'],
                     datasets: [{
                         data: [benar, salah],
                         backgroundColor: ['#0d6efd', '#dc3545'],
@@ -380,72 +546,88 @@
         }
 
         function renderLogTable(log) {
-            let tbody = '';
-            log.slice().reverse().forEach((r, reversedIndex) => {
-                let originalIndex = log.length - 1 - reversedIndex;
-                let dateStr = new Date(r.waktu).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
-                let n = parseFloat(r.nilai_final || r.nilai_akhir || 0);
-                
-                tbody += `
-                    <tr>
-                        <td>${dateStr}</td><td>${r.nisn}</td><td>${r.nama}</td><td>${r.kelas}</td>
-                        <td style="font-size:16px; font-weight:bold; color:#0d47a1;">${n}</td>
-                        <td>${getStatusBadge(n)}</td>
-                        <td style="text-align:center;">
-                            <button class="btn-detail" onclick="openDetailModal(${originalIndex})">
-                                <i class="fas fa-eye"></i> Detail Analisis
-                            </button>
-                        </td>
-                    </tr>
-                `;
+            var tbody = '';
+            var logSelesai = log.filter(function(l) {
+                return !l.nilai_final || !l.nilai_final.toString().includes('Mengerjakan');
             });
-            document.getElementById('hasilUjianBody').innerHTML = tbody || '<tr><td colspan="7" style="text-align:center;">Belum ada data ujian yang masuk.</td></tr>';
+
+            logSelesai.slice().reverse().forEach(function(r) {
+                var originalIndex = log.indexOf(r);
+                var dateStr = new Date(r.waktu).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+                var n = parseFloat(r.nilai_akhir || 0);
+                
+                tbody += '<tr>' +
+                    '<td>' + dateStr + '</td>' +
+                    '<td>' + r.nisn + '</td>' +
+                    '<td>' + r.nama + '</td>' +
+                    '<td>' + r.kelas + '</td>' +
+                    '<td style="font-size:16px; font-weight:bold; color:#0d47a1;">' + n + '</td>' +
+                    '<td>' + getStatusBadge(n) + '</td>' +
+                    '<td style="text-align:center;">' +
+                        '<button class="btn-detail" onclick="openDetailModal(' + originalIndex + ')">' +
+                            '<i class="fas fa-eye"></i> Detail Analisis' +
+                        '</button>' +
+                    '</td>' +
+                '</tr>';
+            });
+            document.getElementById('hasilUjianBody').innerHTML = tbody || '<tr><td colspan="7" style="text-align:center;">Belum ada siswa yang menyelesaikan ujian.</td></tr>';
         }
 
         function openDetailModal(logIndex) {
-            const data = globalDataLog[logIndex];
-            const nilai = parseFloat(data.nilai_final || data.nilai_akhir || 0);
+            var data = globalDataLog[logIndex];
+            if (!data) return;
+            var nilai = parseFloat(data.nilai_akhir || 0);
             
-            document.getElementById('detailHeaderContent').innerHTML = `
-                <h3><i class="fas fa-user-graduate"></i> ${data.nama}</h3>
-                <p><b>NISN:</b> ${data.nisn} &nbsp; | &nbsp; <b>Kelas:</b> ${data.kelas}</p>
-                <p><b>Skor Akhir:</b> <span style="font-size:18px; font-weight:bold; color:#0d47a1;">${nilai}</span></p>
-                <p><b>Kategori Passing Grade:</b> ${getStatusBadge(nilai)}</p>
-            `;
+            document.getElementById('detailHeaderContent').innerHTML = 
+                '<h3><i class="fas fa-user-graduate"></i> ' + data.nama + '</h3>' +
+                '<p><b>NISN:</b> ' + data.nisn + ' &nbsp; | &nbsp; <b>Kelas:</b> ' + data.kelas + '</p>' +
+                '<p><b>Skor Akhir Total:</b> <span style="font-size:18px; font-weight:bold; color:#0d47a1;">' + nilai + ' Poin</span></p>' +
+                '<p><b>Kategori Passing Grade:</b> ' + getStatusBadge(nilai) + '</p>';
 
-            let jawabanSiswaObj = {};
+            var jawabanSiswaObj = {};
             try {
                 if (data.raw_answers) jawabanSiswaObj = JSON.parse(data.raw_answers);
             } catch (e) { console.error(e); }
 
-            let totalBenar = 0;
-            let totalSalah = 0;
-            let tbodySoal = '';
+            var totalBenar = 0;
+            var totalSalah = 0;
+            var tbodySoal = '';
 
             if (globalDataSoal.length > 0) {
-                globalDataSoal.forEach((soal, index) => {
-                    let idSoal = soal.id.toString();
-                    let kunciAsli = soal.kunci ? soal.kunci.toString().trim().toUpperCase() : "-";
-                    let jawabSiswa = jawabanSiswaObj[idSoal] ? jawabanSiswaObj[idSoal].toUpperCase() : "KOSONG";
+                globalDataSoal.forEach(function(soal, index) {
+                    var idSoal = soal.id.toString();
+                    var kunciAsli = soal.kunci ? soal.kunci.toString().trim() : "-";
+                    var jawabSiswa = jawabanSiswaObj[idSoal] ? jawabanSiswaObj[idSoal] : "KOSONG";
                     
-                    let isBenar = (jawabSiswa === kunciAsli);
-                    if (isBenar) totalBenar++; else totalSalah++;
+                    var isEssay = soal.isEssay;
+                    var statusTeks = "";
+                    var warnaJawab = "#333";
 
-                    let statusTeks = isBenar ? '<span class="text-benar"><i class="fas fa-check"></i> Benar</span>' : '<span class="text-salah"><i class="fas fa-times"></i> Salah</span>';
-                    let ringkasTeks = soal.text.length > 80 ? soal.text.substring(0, 80) + '...' : soal.text;
+                    if (isEssay) {
+                        statusTeks = '<span class="text-warning"><i class="fas fa-robot"></i> Esai (Dinilai AI)</span>';
+                        warnaJawab = '#0d6efd';
+                        totalBenar++; 
+                    } else {
+                        var isBenar = (jawabSiswa.toUpperCase() === kunciAsli.toUpperCase());
+                        if (isBenar) totalBenar++; else totalSalah++;
+                        statusTeks = isBenar ? '<span class="text-benar"><i class="fas fa-check"></i> Benar</span>' : '<span class="text-salah"><i class="fas fa-times"></i> Salah</span>';
+                        warnaJawab = isBenar ? '#28a745' : '#dc3545';
+                    }
 
-                    tbodySoal += `
-                        <tr>
-                            <td>${index + 1}</td>
-                            <td>${ringkasTeks}</td>
-                            <td style="font-weight:bold;">${kunciAsli}</td>
-                            <td style="color:${isBenar ? '#28a745' : '#dc3545'}; font-weight:bold;">${jawabSiswa}</td>
-                            <td>${statusTeks}</td>
-                        </tr>
-                    `;
+                    var ringkasTeks = soal.text.length > 70 ? soal.text.substring(0, 70) + '...' : soal.text;
+                    var ringkasKunci = kunciAsli.length > 60 ? kunciAsli.substring(0, 60) + '...' : kunciAsli;
+                    var ringkasJawab = jawabSiswa.length > 60 ? jawabSiswa.substring(0, 60) + '...' : jawabSiswa;
+
+                    tbodySoal += '<tr>' +
+                        '<td>' + (index + 1) + '</td>' +
+                        '<td>' + ringkasTeks + '</td>' +
+                        '<td style="font-weight:600; font-size:12px; color:#555;">' + ringkasKunci + '</td>' +
+                        '<td style="color:' + warnaJawab + '; font-weight:bold; font-size:12px;">' + ringkasJawab + '</td>' +
+                        '<td>' + statusTeks + '</td>' +
+                    '</tr>';
                 });
             } else {
-                tbodySoal = `<tr><td colspan="5" style="text-align:center;">Data rincian bank soal belum dimuat.</td></tr>`;
+                tbodySoal = '<tr><td colspan="5" style="text-align:center;">Data rincian bank soal belum dimuat.</td></tr>';
                 totalBenar = nilai; totalSalah = 100 - nilai;
             }
 
@@ -457,13 +639,15 @@
         function closeDetailModal() { document.getElementById('detailModal').style.display = 'none'; }
 
         function renderStudentChart(benar, salah) {
-            const ctx = document.getElementById('detailStudentChart').getContext('2d');
+            var chartEl = document.getElementById('detailStudentChart');
+            if (!chartEl) return;
+            var ctx = chartEl.getContext('2d');
             if (studentChart) studentChart.destroy();
 
             studentChart = new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: ['Benar', 'Salah / Kosong'],
+                    labels: ['Benar / Esai Terisi', 'Salah / Kosong'],
                     datasets: [{
                         data: [benar, salah],
                         backgroundColor: ['#0d6efd', '#dc3545'],
@@ -475,88 +659,88 @@
         }
 
         function renderSiswaTable() {
-            let tbody = '';
-            globalDataSiswa.forEach((s, index) => {
-                let realRow = index + 2; 
-                tbody += `
-                    <tr id="row-${realRow}">
-                        <td>${index + 1}</td>
-                        <td><span class="display-text">${s.nisn}</span><input type="text" class="edit-input" style="display:none;" value="${s.nisn}"></td>
-                        <td><span class="display-text">${s.nama}</span><input type="text" class="edit-input" style="display:none;" value="${s.nama}"></td>
-                        <td><span class="display-text">${s.kelas}</span><input type="text" class="edit-input" style="display:none;" value="${s.kelas}"></td>
-                        <td style="text-align: center;">
-                            <button class="action-btn btn-edit" onclick="enableEditMode(${realRow})" title="Edit"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn btn-delete" onclick="deleteSiswa(${realRow}, '${s.nama}')" title="Hapus"><i class="fas fa-trash-alt"></i></button>
-                            <button class="action-btn btn-save" onclick="saveEdit(${realRow})" title="Simpan"><i class="fas fa-check"></i></button>
-                            <button class="action-btn btn-cancel" onclick="cancelEdit(${realRow})" title="Batal"><i class="fas fa-times"></i></button>
-                        </td>
-                    </tr>
-                `;
+            var tbody = '';
+            globalDataSiswa.forEach(function(s, index) {
+                var realRow = index + 2; 
+                tbody += '<tr id="row-' + realRow + '">' +
+                    '<td>' + (index + 1) + '</td>' +
+                    '<td><span class="display-text">' + s.nisn + '</span><input type="text" class="edit-input" style="display:none;" value="' + s.nisn + '"></td>' +
+                    '<td><span class="display-text">' + s.nama + '</span><input type="text" class="edit-input" style="display:none;" value="' + s.nama + '"></td>' +
+                    '<td><span class="display-text">' + s.kelas + '</span><input type="text" class="edit-input" style="display:none;" value="' + s.kelas + '"></td>' +
+                    '<td style="text-align: center;">' +
+                        '<button class="action-btn btn-edit" onclick="enableEditMode(' + realRow + ')" title="Edit"><i class="fas fa-edit"></i></button>' +
+                        '<button class="action-btn btn-delete" onclick="deleteSiswa(' + realRow + ', \'' + s.nama + '\')" title="Hapus"><i class="fas fa-trash-alt"></i></button>' +
+                        '<button class="action-btn btn-save" onclick="saveEdit(' + realRow + ')" title="Simpan"><i class="fas fa-check"></i></button>' +
+                        '<button class="action-btn btn-cancel" onclick="cancelEdit(' + realRow + ')" title="Batal"><i class="fas fa-times"></i></button>' +
+                    '</td>' +
+                '</tr>';
             });
             document.getElementById('siswaBody').innerHTML = tbody;
         }
 
         function addNewRow() {
-            let tbody = document.getElementById('siswaBody');
-            let newRow = document.createElement('tr');
+            isEditingRow = true;
+            var tbody = document.getElementById('siswaBody');
+            var newRow = document.createElement('tr');
             newRow.id = "row-new";
-            newRow.innerHTML = `
-                <td>-</td>
-                <td><input type="text" class="edit-input new-nisn" placeholder="NISN baru"></td>
-                <td><input type="text" class="edit-input new-nama" placeholder="Nama Lengkap"></td>
-                <td><input type="text" class="edit-input new-kelas" placeholder="Misal: Kelas A"></td>
-                <td style="text-align: center;">
-                    <button class="action-btn btn-save" style="display:inline-block;" onclick="saveNewSiswa()" title="Simpan"><i class="fas fa-check"></i></button>
-                    <button class="action-btn btn-cancel" style="display:inline-block;" onclick="loadData()" title="Batal"><i class="fas fa-times"></i></button>
-                </td>
-            `;
+            newRow.innerHTML = '<td>-</td>' +
+                '<td><input type="text" class="edit-input new-nisn" placeholder="NISN baru"></td>' +
+                '<td><input type="text" class="edit-input new-nama" placeholder="Nama Lengkap"></td>' +
+                '<td><input type="text" class="edit-input new-kelas" placeholder="Misal: Kelas A"></td>' +
+                '<td style="text-align: center;">' +
+                    '<button class="action-btn btn-save" style="display:inline-block;" onclick="saveNewSiswa()" title="Simpan"><i class="fas fa-check"></i></button>' +
+                    '<button class="action-btn btn-cancel" style="display:inline-block;" onclick="cancelAddNew()" title="Batal"><i class="fas fa-times"></i></button>' +
+                '</td>';
             tbody.insertBefore(newRow, tbody.firstChild);
         }
 
+        function cancelAddNew() { isEditingRow = false; renderSiswaTable(); }
+
         function enableEditMode(rowId) {
-            let row = document.getElementById(`row-${rowId}`);
-            row.querySelectorAll('.display-text').forEach(d => d.style.display = 'none');
-            row.querySelectorAll('.edit-input').forEach(i => i.style.display = 'inline-block');
+            isEditingRow = true;
+            var row = document.getElementById('row-' + rowId);
+            row.querySelectorAll('.display-text').forEach(function(d) { d.style.display = 'none'; });
+            row.querySelectorAll('.edit-input').forEach(function(i) { i.style.display = 'inline-block'; });
             row.querySelector('.btn-edit').style.display = 'none';
             row.querySelector('.btn-delete').style.display = 'none';
             row.querySelector('.btn-save').style.display = 'inline-block';
             row.querySelector('.btn-cancel').style.display = 'inline-block';
         }
 
-        function cancelEdit(rowId) { renderSiswaTable(); }
+        function cancelEdit(rowId) { isEditingRow = false; renderSiswaTable(); }
 
         async function saveNewSiswa() {
-            let row = document.getElementById('row-new');
-            let nisn = row.querySelector('.new-nisn').value.trim();
-            let nama = row.querySelector('.new-nama').value.trim();
-            let kelas = row.querySelector('.new-kelas').value.trim();
+            var row = document.getElementById('row-new');
+            var nisn = row.querySelector('.new-nisn').value.trim();
+            var nama = row.querySelector('.new-nama').value.trim();
+            var kelas = row.querySelector('.new-kelas').value.trim();
 
             if (!nisn || !nama || !kelas) { alert("Semua kolom harus diisi!"); return; }
 
             showLoader('Menyimpan Siswa Baru...');
-            const formData = new FormData();
+            var formData = new FormData();
             formData.append('action', 'createSiswa');
             formData.append('nisn', nisn);
             formData.append('nama', nama);
             formData.append('kelas', kelas);
 
             try {
-                const res = await fetch(scriptURL, { method: 'POST', body: formData });
-                const result = await res.json();
-                if(result.status === 'success') loadData();
-                else { alert("Gagal: " + result.message); hideLoader(); }
-            } catch (e) { alert("Error koneksi."); hideLoader(); }
+                var res = await fetch(scriptURL, { method: 'POST', body: formData });
+                var result = await res.json();
+                if (result.status === 'success') { isEditingRow = false; loadData(true); }
+            } catch (e) { alert("Error koneksi."); }
+            finally { hideLoader(); }
         }
 
         async function saveEdit(rowId) {
-            let row = document.getElementById(`row-${rowId}`);
-            let inputs = row.querySelectorAll('.edit-input');
-            let nisnBaru = inputs[0].value.trim();
-            let namaBaru = inputs[1].value.trim();
-            let kelasBaru = inputs[2].value.trim();
+            var row = document.getElementById('row-' + rowId);
+            var inputs = row.querySelectorAll('.edit-input');
+            var nisnBaru = inputs[0].value.trim();
+            var namaBaru = inputs[1].value.trim();
+            var kelasBaru = inputs[2].value.trim();
 
             showLoader('Memperbarui Siswa...');
-            const formData = new FormData();
+            var formData = new FormData();
             formData.append('action', 'updateSiswa');
             formData.append('rowId', rowId); 
             formData.append('nisn', nisnBaru);
@@ -564,34 +748,42 @@
             formData.append('kelas', kelasBaru);
 
             try {
-                const res = await fetch(scriptURL, { method: 'POST', body: formData });
-                const result = await res.json();
-                if(result.status === 'success') loadData();
-                else { alert("Gagal: " + result.message); hideLoader(); }
-            } catch (e) { alert("Error koneksi."); hideLoader(); }
+                var res = await fetch(scriptURL, { method: 'POST', body: formData });
+                var result = await res.json();
+                if (result.status === 'success') { isEditingRow = false; loadData(true); }
+            } catch (e) { alert("Error koneksi."); }
+            finally { hideLoader(); }
         }
 
         async function deleteSiswa(rowId, namaSiswa) {
-            if(!confirm(`Hapus permanen siswa: ${namaSiswa}?`)) return;
+            if (!confirm('Hapus permanen siswa: ' + namaSiswa + '?')) return;
 
             showLoader('Menghapus Siswa...');
-            const formData = new FormData();
+            var formData = new FormData();
             formData.append('action', 'deleteSiswa');
             formData.append('rowId', rowId);
 
             try {
-                const res = await fetch(scriptURL, { method: 'POST', body: formData });
-                const result = await res.json();
-                if(result.status === 'success') loadData();
-                else { alert("Gagal: " + result.message); hideLoader(); }
-            } catch (e) { alert("Error koneksi."); hideLoader(); }
+                var res = await fetch(scriptURL, { method: 'POST', body: formData });
+                var result = await res.json();
+                if (result.status === 'success') loadData(true);
+            } catch (e) { alert("Error koneksi."); }
+            finally { hideLoader(); }
         }
 
         function logout() {
-            if(confirm('Yakin ingin keluar?')) { localStorage.clear(); window.location.href = 'index.html'; }
+            if (confirm('Yakin ingin keluar?')) { localStorage.clear(); window.location.href = 'index.html'; }
         }
 
-        window.onload = loadData;
+        // LOAD DATA & AUTO REFRESH
+        window.addEventListener('DOMContentLoaded', function() {
+            loadData(true);
+            setInterval(function() {
+                if (!isEditingRow && document.getElementById('dashboard').classList.contains('active')) {
+                    loadData(false);
+                }
+            }, 8000);
+        });
     </script>
 </body>
 </html>
