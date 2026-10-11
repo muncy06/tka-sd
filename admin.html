@@ -357,7 +357,7 @@
                 var data = await res.json();
                 if (data.status === 'success') {
                     renderExamStatusUI(data.status_ujian, data.paket_aktif);
-                    await loadData(false); // Refresh tabel agar menampilkan log untuk paket ini
+                    await loadData(false);
                 } else {
                     alert('Gagal mengubah paket: ' + (data.message || 'Error'));
                 }
@@ -511,7 +511,6 @@
                 try {
                     if (r.raw_answers) {
                         var parsedLog = JSON.parse(r.raw_answers);
-                        // Hitung Ulang Nilai dari raw_answers untuk memisahkan PG dan Esai pada tampilan tabel
                         var benarPG = 0;
                         var totalPG = 0;
                         var totalEsai = 0;
