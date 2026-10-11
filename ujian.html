@@ -22,7 +22,6 @@
             display: flex; flex-direction: column;
         }
 
-        /* OVERLAYS */
         .full-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(15, 23, 42, 0.96); color: white; display: flex;
@@ -42,7 +41,6 @@
         .btn-start:hover { background: #0b5ed7; }
         .btn-start:disabled { background: #64748b !important; cursor: not-allowed; opacity: 0.8; }
 
-        /* CUSTOM MODAL */
         #custom-modal, #exit-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0,0,0,0.7); z-index: 10000; justify-content: center; align-items: center;
@@ -74,7 +72,6 @@
         }
         .input-pass:focus { border-color: #dc3545; }
 
-        /* HEADER */
         .header {
             background: #0d47a1; color: white; padding: 12px 30px; display: flex;
             justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -92,7 +89,6 @@
         .header-right .nama { font-weight: 700; font-size: 18px; text-transform: uppercase; }
         .header-right .kelas { font-size: 13px; color: #90caf9; font-weight: 500; }
 
-        /* KONTEN UTAMA */
         .main-wrapper {
             flex: 1; display: flex; justify-content: center; align-items: center; padding: 15px;
             overflow: hidden;
@@ -101,7 +97,6 @@
             display: flex; gap: 20px; width: 100%; max-width: 1400px; height: 100%;
         }
 
-        /* BAGIAN SOAL */
         .question-area {
             flex: 3; background: white; border-radius: 14px; box-shadow: 0 8px 25px rgba(0,0,0,0.05);
             display: flex; flex-direction: column; height: 100%; border: 1px solid #e2e8f0; min-width: 0;
@@ -120,7 +115,6 @@
 
         .options-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
         
-        /* STYLE PILIHAN GANDA */
         .option-item {
             display: flex; align-items: center; padding: 14px 20px; border: 2px solid #e2e8f0;
             border-radius: 10px; cursor: pointer; transition: 0.2s; background: #f8fafc; font-size: 15px;
@@ -129,7 +123,6 @@
         .option-item.selected { border-color: #0d6efd; background: #eff6ff; font-weight: 600; }
         .option-item input[type="radio"] { margin-right: 15px; transform: scale(1.4); cursor: pointer; }
 
-        /* STYLE INPUT URAIAN / ESAI */
         .input-essay {
             width: 100%; min-height: 180px; padding: 18px; border: 2px solid #cbd5e1;
             border-radius: 12px; font-size: 16px; color: #1e293b; outline: none;
@@ -149,7 +142,6 @@
         .btn-prev { background: #64748b; }
         .btn-next { background: #0d6efd; }
 
-        /* SIDEBAR PETA SOAL */
         .sidebar {
             flex: 1; background: white; border-radius: 14px; box-shadow: 0 8px 25px rgba(0,0,0,0.05);
             display: flex; flex-direction: column; height: 100%; border: 1px solid #e2e8f0; min-width: 250px;
@@ -178,7 +170,6 @@
         }
         .btn-submit-exam:hover { background: #059669; }
 
-        /* SCREEN HASIL (DIPERBARUI) */
         #result-container {
             display: none; justify-content: center; align-items: center; width: 100vw; height: 100vh;
             background: #f8fafc; position: fixed; top: 0; left: 0; z-index: 1000; overflow-y: auto; padding: 20px;
@@ -199,7 +190,6 @@
         .badge-hijau { background: #10b981; } .badge-kuning { background: #f59e0b; color: #fff; }
         .badge-orange { background: #f97316; } .badge-merah { background: #ef4444; }
 
-        /* RESPONSIVE LAYAR HP */
         @media (max-width: 768px) {
             body { height: 100dvh; }
             .header { min-height: auto; padding: 10px 15px; flex-direction: column; gap: 8px; align-items: stretch; }
@@ -345,7 +335,6 @@
         </div>
     </div>
 
-    <!-- SCREEN HASIL (DIPERBARUI) -->
     <div id="result-container">
         <div class="result-card">
             <h2 style="color: #10b981; font-size: 26px; margin-bottom: 8px;"><i class="fas fa-check-circle"></i> Ujian Selesai!</h2>
@@ -385,7 +374,6 @@
     </div>
 
     <script>
-        // PASTIKAN URL INI SAMA DENGAN URL GOOGLE APPS SCRIPT ANDA
         var scriptURL = 'https://script.google.com/macros/s/AKfycbzBhq5dGe0p6MvlxvzwBbhge4Iu5jy9eebNYxHrC_VSf9i4fhdQ21fvlbI-GDO9JamDxA/exec';
 
         if (localStorage.getItem('isLoggedIn') !== 'true' || localStorage.getItem('role') !== 'siswa') {
@@ -488,12 +476,14 @@
 
                     var logUjianSiswa = data.log_siswa_selesai || false; 
                     var keySelesai = 'selesai_' + serverPaket + '_' + nisnSiswa;
-                    var isSelesaiLokal = localStorage.getItem(keySelesai) === 'true';
-
-                    if (!logUjianSiswa && isSelesaiLokal) {
+                    
+                    // PERBAIKAN UTAMA: Jika di server status log_siswa_selesai bernilai false (karena di-reset admin),
+                    // otomatis hapus kunci selesai di localStorage browser siswa agar tidak terkunci lagi.
+                    if (!logUjianSiswa) {
                         localStorage.removeItem(keySelesai);
-                        isSelesaiLokal = false;
                     }
+                    
+                    var isSelesaiLokal = localStorage.getItem(keySelesai) === 'true';
 
                     if (isSelesaiLokal || logUjianSiswa) {
                         statusEl.innerHTML = '<span style="color:#ef4444; font-weight:bold;"><i class="fas fa-ban"></i> Anda sudah menyelesaikan ujian ' + labelPaket + '</span>';
@@ -765,7 +755,6 @@
                             localStorage.removeItem(saveKey);
                         }
 
-                        // Kirim 3 argumen nilai: nilaiAkhir(Total), nilaiPG, nilaiEsai
                         tampilkanHasilSiswa(data.nilai, data.nilai_pg, data.nilai_esai);
                     } else {
                         showModal('alert', 'Gagal', 'Terjadi kendala penyimpanan: ' + data.message);
