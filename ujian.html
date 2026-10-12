@@ -342,7 +342,7 @@
             
             <div class="result-info">
                 <p><b>Nama :</b> <span id="resNama">-</span></p>
-                <p><b>NISN :</b> <span id="resNisn">-</span></p>
+                <p><b>Username :</b> <span id="resUsername">-</span></p>
                 
                 <div class="score-box">
                     <div style="border-right: 1px solid #cbd5e1;">
@@ -392,7 +392,7 @@
         var serverExamStatus = "DITUTUP";
         var serverPaket = ""; 
         var typingTimer = null; 
-        var nisnSiswa = localStorage.getItem('nisnSiswa') || 'N/A';
+        var usernameSiswa = localStorage.getItem('usernameSiswa') || 'N/A';
 
         function showModal(type, title, message, onConfirm = null) {
             var modal = document.getElementById('custom-modal');
@@ -462,7 +462,7 @@
         async function checkExamStatusFromAdmin() {
             var formData = new FormData();
             formData.append('action', 'getStatusUjian');
-            formData.append('nisn', nisnSiswa);
+            formData.append('username', usernameSiswa);
             try {
                 var res = await fetch(scriptURL, { method: 'POST', body: formData });
                 var data = await res.json();
@@ -475,10 +475,8 @@
                     var labelPaket = serverPaket ? serverPaket.replace('_', ' ') : 'PAKET';
 
                     var logUjianSiswa = data.log_siswa_selesai || false; 
-                    var keySelesai = 'selesai_' + serverPaket + '_' + nisnSiswa;
+                    var keySelesai = 'selesai_' + serverPaket + '_' + usernameSiswa;
                     
-                    // PERBAIKAN UTAMA: Jika di server status log_siswa_selesai bernilai false (karena di-reset admin),
-                    // otomatis hapus kunci selesai di localStorage browser siswa agar tidak terkunci lagi.
                     if (!logUjianSiswa) {
                         localStorage.removeItem(keySelesai);
                     }
@@ -506,7 +504,7 @@
         }
 
         function beginExam() {
-            var keySelesai = 'selesai_' + serverPaket + '_' + nisnSiswa;
+            var keySelesai = 'selesai_' + serverPaket + '_' + usernameSiswa;
             
             if (localStorage.getItem(keySelesai) === 'true') {
                 showModal('alert', 'Akses Ditolak', 'Anda telah mengumpulkan lembar jawaban untuk paket ujian ini. Silakan tunggu paket berikutnya dari Panitia.');
@@ -517,7 +515,7 @@
                 return;
             }
 
-            var saveKey = 'answers_' + serverPaket + '_' + nisnSiswa;
+            var saveKey = 'answers_' + serverPaket + '_' + usernameSiswa;
             var savedAns = localStorage.getItem(saveKey);
             if (savedAns) {
                 try { userAnswers = JSON.parse(savedAns); } catch(e) { userAnswers = {}; }
@@ -635,8 +633,8 @@
         }
 
         function saveToLocal() {
-            if (serverPaket && nisnSiswa) {
-                var saveKey = 'answers_' + serverPaket + '_' + nisnSiswa;
+            if (serverPaket && usernameSiswa) {
+                var saveKey = 'answers_' + serverPaket + '_' + usernameSiswa;
                 localStorage.setItem(saveKey, JSON.stringify(userAnswers));
             }
         }
@@ -660,7 +658,7 @@
             var totalJawab = countAnswered();
             var formData = new FormData();
             formData.append('action', 'updateProgress');
-            formData.append('nisn', nisnSiswa);
+            formData.append('username', usernameSiswa);
             formData.append('nama', localStorage.getItem('namaSiswa') || 'Siswa');
             formData.append('kelas', localStorage.getItem('kelasSiswa') || '-');
             formData.append('terjawab', totalJawab);
@@ -736,7 +734,7 @@
             
             var formData = new FormData();
             formData.append('action', 'submitUjian');
-            formData.append('nisn', nisnSiswa); 
+            formData.append('username', usernameSiswa); 
             formData.append('nama', localStorage.getItem('namaSiswa'));
             formData.append('kelas', localStorage.getItem('kelasSiswa'));
             formData.append('answers', JSON.stringify(userAnswers)); 
@@ -747,11 +745,11 @@
                     if (data.status === 'success') {
                         isExamFinished = true;
                         
-                        if (serverPaket && nisnSiswa) {
-                            var keySelesai = 'selesai_' + serverPaket + '_' + nisnSiswa;
+                        if (serverPaket && usernameSiswa) {
+                            var keySelesai = 'selesai_' + serverPaket + '_' + usernameSiswa;
                             localStorage.setItem(keySelesai, 'true');
                             
-                            var saveKey = 'answers_' + serverPaket + '_' + nisnSiswa;
+                            var saveKey = 'answers_' + serverPaket + '_' + usernameSiswa;
                             localStorage.removeItem(saveKey);
                         }
 
@@ -781,7 +779,7 @@
             document.getElementById('result-container').style.display = 'flex';
 
             document.getElementById('resNama').innerText = localStorage.getItem('namaSiswa');
-            document.getElementById('resNisn').innerText = nisnSiswa;
+            document.getElementById('resUsername').innerText = usernameSiswa;
             
             document.getElementById('resPilgan').innerText = nilaiPG;
             document.getElementById('resEsai').innerText = '+' + nilaiEsai;
