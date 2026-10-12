@@ -214,7 +214,7 @@
                 </div>
                 <div class="table-responsive">
                     <table>
-                        <thead><tr><th>Waktu Submit</th><th>Username</th><th>Nama Siswa</th><th>Kelas</th><th>Nilai PG</th><th>Nilai Esai</th><th>Nilai Total</th><th>Predikat</th><th style="text-align:center;">Analisis</th></tr></thead>
+                        <thead><tr><th>Waktu Submit</th><th>NISN</th><th>Nama Siswa</th><th>Kelas</th><th>Nilai PG</th><th>Nilai Esai</th><th>Nilai Total</th><th>Predikat</th><th style="text-align:center;">Analisis</th></tr></thead>
                         <tbody id="hasilUjianBody"></tbody>
                     </table>
                 </div>
@@ -230,7 +230,7 @@
                 <p style="font-size: 13px; color: #888; margin-bottom: 15px;">*Perubahan data disini langsung tersimpan ke Google Sheets. Password default siswa: <b>2026</b>.</p>
                 <div class="table-responsive">
                     <table>
-                        <thead><tr><th>No</th><th>Username</th><th>Nama Lengkap</th><th>Kelas</th><th style="text-align: center;">Aksi</th></tr></thead>
+                        <thead><tr><th>No</th><th>NISN (Username)</th><th>Nama Lengkap</th><th>Kelas</th><th style="text-align: center;">Aksi</th></tr></thead>
                         <tbody id="siswaBody"></tbody>
                     </table>
                 </div>
@@ -340,32 +340,10 @@
 
         async function changePaketManually() {
             var selectedPaket = document.getElementById('paketSelector').value;
-            
-            if (currentStatusUjian === 'DIBUKA') {
-                alert("PERINGATAN: Ujian sedang berlangsung (DIBUKA). Silakan klik 'Tutup Ujian' terlebih dahulu sebelum mengganti paket soal!");
-                document.getElementById('paketSelector').value = currentPaket; 
-                return;
-            }
-
-            showLoader('Menyimpan Pilihan Paket ke Server...');
-            var formData = new FormData();
-            formData.append('action', 'setPaket');
-            formData.append('paket', selectedPaket);
-
-            try {
-                var res = await fetch(scriptURL, { method: 'POST', body: formData });
-                var data = await res.json();
-                if (data.status === 'success') {
-                    renderExamStatusUI(data.status_ujian, data.paket_aktif);
-                    await loadData(false);
-                } else {
-                    alert('Gagal mengubah paket: ' + (data.message || 'Error'));
-                }
-            } catch(e) { 
-                alert('Gagal terhubung ke server: ' + e.message); 
-            } finally { 
-                hideLoader(); 
-            }
+            currentPaket = selectedPaket;
+            showLoader('Memuat Status Paket...');
+            await loadData(false);
+            hideLoader();
         }
 
         async function toggleExamControl() {
@@ -392,6 +370,7 @@
             if (showSpinner) showLoader('Menyinkronkan Data Server...');
             var formData = new FormData();
             formData.append('action', 'getAdminData');
+            formData.append('paket', currentPaket);
 
             try {
                 var response = await fetch(scriptURL, { method: 'POST', body: formData });
@@ -676,9 +655,8 @@
             });
         }
 
-        /* FUNGSI RESET SISWA */
         async function resetSiswa(nisnSiswa, namaSiswa) {
-            if(!confirm("Anda yakin ingin mereset ujian siswa " + namaSiswa + " pada paket ini? Data jawaban siswa ini akan dihapus dan siswa harus mengerjakan ulang dari awal.")) return;
+            if(!confirm("Anda yakin ingin mereset ujian siswa " + namaSiswa + " pada paket ini?")) return;
 
             showLoader('Mereset Data Siswa...');
             var formData = new FormData();
@@ -690,7 +668,7 @@
                 var res = await fetch(scriptURL, { method: 'POST', body: formData });
                 var result = await res.json();
                 if(result.status === 'success') {
-                    alert("Berhasil mereset data siswa. Silakan arahkan siswa untuk login ulang.");
+                    alert("Berhasil mereset data siswa.");
                     loadData(true);
                 } else {
                     alert("Gagal mereset: " + result.message);
@@ -700,7 +678,7 @@
         }
 
         async function resetMassalUjian() {
-            if(!confirm("PERINGATAN BAHAYA: Anda yakin ingin mereset SELURUH siswa pada paket " + currentPaket + "? Seluruh data log jawaban pada paket ini akan DIBERSIHKAN TOTAL!")) return;
+            if(!confirm("PERINGATAN: Reset SELURUH siswa pada paket " + currentPaket + "?")) return;
 
             showLoader('Mereset Seluruh Data Ujian...');
             var formData = new FormData();
