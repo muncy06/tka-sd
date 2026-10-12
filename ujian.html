@@ -392,7 +392,7 @@
         var serverExamStatus = "DITUTUP";
         var serverPaket = ""; 
         var typingTimer = null; 
-        var nisnSiswa = localStorage.getItem('nisnSiswa') ? localStorage.getItem('nisnSiswa').trim() : 'N/A';
+        var nisnSiswa = localStorage.getItem('nisnSiswa') || 'N/A';
 
         function showModal(type, title, message, onConfirm = null) {
             var modal = document.getElementById('custom-modal');
@@ -477,6 +477,8 @@
                     var logUjianSiswa = data.log_siswa_selesai || false; 
                     var keySelesai = 'selesai_' + serverPaket + '_' + nisnSiswa;
                     
+                    // PERBAIKAN UTAMA: Jika di server status log_siswa_selesai bernilai false (karena di-reset admin),
+                    // otomatis hapus kunci selesai di localStorage browser siswa agar tidak terkunci lagi.
                     if (!logUjianSiswa) {
                         localStorage.removeItem(keySelesai);
                     }
