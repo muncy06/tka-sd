@@ -189,7 +189,7 @@
                     <div class="table-responsive">
                         <table>
                             <thead>
-                                <tr><th>NISN</th><th>Nama Siswa</th><th>Kelas</th><th>Aktivitas Terakhir</th><th>Status Pengerjaan</th></tr>
+                                <tr><th>Username</th><th>Nama Siswa</th><th>Kelas</th><th>Aktivitas Terakhir</th><th>Status Pengerjaan</th></tr>
                             </thead>
                             <tbody id="liveProgressBody"></tbody>
                         </table>
@@ -214,7 +214,7 @@
                 </div>
                 <div class="table-responsive">
                     <table>
-                        <thead><tr><th>Waktu Submit</th><th>NISN</th><th>Nama Siswa</th><th>Kelas</th><th>Nilai PG</th><th>Nilai Esai</th><th>Nilai Total</th><th>Predikat</th><th style="text-align:center;">Analisis</th></tr></thead>
+                        <thead><tr><th>Waktu Submit</th><th>Username</th><th>Nama Siswa</th><th>Kelas</th><th>Nilai PG</th><th>Nilai Esai</th><th>Nilai Total</th><th>Predikat</th><th style="text-align:center;">Analisis</th></tr></thead>
                         <tbody id="hasilUjianBody"></tbody>
                     </table>
                 </div>
@@ -230,7 +230,7 @@
                 <p style="font-size: 13px; color: #888; margin-bottom: 15px;">*Perubahan data disini langsung tersimpan ke Google Sheets. Password default siswa: <b>2026</b>.</p>
                 <div class="table-responsive">
                     <table>
-                        <thead><tr><th>No</th><th>NISN (Username)</th><th>Nama Lengkap</th><th>Kelas</th><th style="text-align: center;">Aksi</th></tr></thead>
+                        <thead><tr><th>No</th><th>Username</th><th>Nama Lengkap</th><th>Kelas</th><th style="text-align: center;">Aksi</th></tr></thead>
                         <tbody id="siswaBody"></tbody>
                     </table>
                 </div>
@@ -430,12 +430,12 @@
             var totalNilai = 0;
             var logMap = {};
             
-            log.forEach(function(l) { logMap[l.nisn] = l; });
+            log.forEach(function(l) { logMap[l.username] = l; });
 
             var liveTbody = '';
 
             siswa.forEach(function(s) {
-                var logItem = logMap[s.nisn];
+                var logItem = logMap[s.username];
                 var statusHtml = '<span class="badge badge-belum">Belum Masuk</span>';
                 var waktuAktif = '-';
 
@@ -455,7 +455,7 @@
                 }
 
                 liveTbody += '<tr>' +
-                    '<td><b>' + s.nisn + '</b></td>' +
+                    '<td><b>' + s.username + '</b></td>' +
                     '<td>' + s.nama + '</td>' +
                     '<td>' + s.kelas + '</td>' +
                     '<td>' + waktuAktif + '</td>' +
@@ -543,7 +543,7 @@
                 
                 tbody += '<tr>' +
                     '<td>' + dateStr + '</td>' +
-                    '<td>' + r.nisn + '</td>' +
+                    '<td>' + r.username + '</td>' +
                     '<td>' + r.nama + '</td>' +
                     '<td>' + r.kelas + '</td>' +
                     '<td style="font-size:14px; font-weight:bold; color:#0d6efd;">' + nPG + '</td>' +
@@ -552,7 +552,7 @@
                     '<td>' + getStatusBadge(nTotal) + '</td>' +
                     '<td style="text-align:center;">' +
                         '<button class="btn-detail" onclick="openDetailModal(' + originalIndex + ')"><i class="fas fa-eye"></i> Detail</button>' +
-                        '<button class="btn-reset" onclick="resetSiswa(\'' + r.nisn + '\', \'' + r.nama + '\')"><i class="fas fa-redo"></i> Reset</button>' +
+                        '<button class="btn-reset" onclick="resetSiswa(\'' + r.username + '\', \'' + r.nama + '\')"><i class="fas fa-redo"></i> Reset</button>' +
                     '</td>' +
                 '</tr>';
             });
@@ -580,7 +580,7 @@
             
             document.getElementById('detailHeaderContent').innerHTML = 
                 '<h3><i class="fas fa-user-graduate"></i> ' + data.nama + '</h3>' +
-                '<p><b>NISN:</b> ' + data.nisn + ' &nbsp; | &nbsp; <b>Kelas:</b> ' + data.kelas + '</p>' +
+                '<p><b>Username:</b> ' + data.username + ' &nbsp; | &nbsp; <b>Kelas:</b> ' + data.kelas + '</p>' +
                 '<p><b>Skor Akhir Total:</b> <span style="font-size:18px; font-weight:bold; color:#0d47a1;">' + nilaiTotal + ' Poin</span></p>' +
                 '<p><b>Kategori Passing Grade:</b> ' + getStatusBadge(nilaiTotal) + '</p>';
 
@@ -677,13 +677,13 @@
         }
 
         /* FUNGSI RESET SISWA */
-        async function resetSiswa(nisnSiswa, namaSiswa) {
+        async function resetSiswa(usernameSiswa, namaSiswa) {
             if(!confirm("Anda yakin ingin mereset ujian siswa " + namaSiswa + " pada paket ini? Data jawaban siswa ini akan dihapus dan siswa harus mengerjakan ulang dari awal.")) return;
 
             showLoader('Mereset Data Siswa...');
             var formData = new FormData();
             formData.append('action', 'resetSiswa');
-            formData.append('nisn', nisnSiswa);
+            formData.append('username', usernameSiswa);
             formData.append('paket', currentPaket);
 
             try {
@@ -726,7 +726,7 @@
                 var realRow = index + 2; 
                 tbody += '<tr id="row-' + realRow + '">' +
                     '<td>' + (index + 1) + '</td>' +
-                    '<td><span class="display-text">' + s.nisn + '</span><input type="text" class="edit-input" style="display:none;" value="' + s.nisn + '"></td>' +
+                    '<td><span class="display-text">' + s.username + '</span><input type="text" class="edit-input" style="display:none;" value="' + s.username + '"></td>' +
                     '<td><span class="display-text">' + s.nama + '</span><input type="text" class="edit-input" style="display:none;" value="' + s.nama + '"></td>' +
                     '<td><span class="display-text">' + s.kelas + '</span><input type="text" class="edit-input" style="display:none;" value="' + s.kelas + '"></td>' +
                     '<td style="text-align: center;">' +
@@ -746,7 +746,7 @@
             var newRow = document.createElement('tr');
             newRow.id = "row-new";
             newRow.innerHTML = '<td>-</td>' +
-                '<td><input type="text" class="edit-input new-nisn" placeholder="NISN baru"></td>' +
+                '<td><input type="text" class="edit-input new-username" placeholder="Username baru"></td>' +
                 '<td><input type="text" class="edit-input new-nama" placeholder="Nama Lengkap"></td>' +
                 '<td><input type="text" class="edit-input new-kelas" placeholder="Misal: Kelas A"></td>' +
                 '<td style="text-align: center;">' +
@@ -773,16 +773,16 @@
 
         async function saveNewSiswa() {
             var row = document.getElementById('row-new');
-            var nisn = row.querySelector('.new-nisn').value.trim();
+            var username = row.querySelector('.new-username').value.trim();
             var nama = row.querySelector('.new-nama').value.trim();
             var kelas = row.querySelector('.new-kelas').value.trim();
 
-            if (!nisn || !nama || !kelas) { alert("Semua kolom harus diisi!"); return; }
+            if (!username || !nama || !kelas) { alert("Semua kolom harus diisi!"); return; }
 
             showLoader('Menyimpan Siswa Baru...');
             var formData = new FormData();
             formData.append('action', 'createSiswa');
-            formData.append('nisn', nisn);
+            formData.append('username', username);
             formData.append('nama', nama);
             formData.append('kelas', kelas);
 
@@ -797,7 +797,7 @@
         async function saveEdit(rowId) {
             var row = document.getElementById('row-' + rowId);
             var inputs = row.querySelectorAll('.edit-input');
-            var nisnBaru = inputs[0].value.trim();
+            var usernameBaru = inputs[0].value.trim();
             var namaBaru = inputs[1].value.trim();
             var kelasBaru = inputs[2].value.trim();
 
@@ -805,7 +805,7 @@
             var formData = new FormData();
             formData.append('action', 'updateSiswa');
             formData.append('rowId', rowId); 
-            formData.append('nisn', nisnBaru);
+            formData.append('username', usernameBaru);
             formData.append('nama', namaBaru);
             formData.append('kelas', kelasBaru);
 
