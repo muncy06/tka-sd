@@ -178,8 +178,8 @@
                 Pastikan perangkat Anda stabil.<br>
                 Sistem akan memantau aktivitas ujian secara penuh. Dilarang berpindah aplikasi atau membuka tab lain.
             </p>
-            <button class="btn-start" id="btnMulaiUjian" onclick="showWaitingRoom()" disabled>
-                <i class="fas fa-spinner fa-spin"></i> Sedang Memuat Soal...
+            <button class="btn-start" id="btnMulaiUjian" onclick="showWaitingRoom()">
+                <i class="fas fa-check-circle"></i> Lanjut ke Ruang Tunggu
             </button>
         </div>
     </div>
@@ -197,6 +197,8 @@
                 <option value="PAKET_A">Hari 1: Paket A (Agama, PKn, B.Indo)</option>
                 <option value="PAKET_B">Hari 2: Paket B (MTK, IPAS, PJOK)</option>
                 <option value="PAKET_C">Hari 3: Paket C (Seni, B.Inggris)</option>
+                <option value="PAKET_D">Paket D</option>
+                <option value="PAKET_E">Paket E</option>
             </select>
 
             <div id="paketStatusInfo" class="paket-status-info">
@@ -389,25 +391,6 @@
         }
         function closeModal() { document.getElementById('custom-modal').style.display = 'none'; }
 
-        window.onload = async function() {
-            var formData = new FormData();
-            formData.append('action', 'getSoal');
-            try {
-                var response = await fetch(scriptURL, { method: 'POST', body: formData });
-                var result = await response.json();
-                if (result.status === 'success') {
-                    examData = result.data; 
-                    var btnStart = document.getElementById('btnMulaiUjian');
-                    btnStart.disabled = false;
-                    btnStart.innerHTML = '<i class="fas fa-check-circle"></i> Siap Ujian';
-                } else { 
-                    showModal('alert', 'Database', 'Gagal memuat soal: ' + result.message); 
-                }
-            } catch (error) { 
-                showModal('alert', 'Koneksi', 'Pastikan koneksi internet aktif.'); 
-            }
-        };
-
         function showWaitingRoom() {
             document.getElementById('start-overlay').style.display = 'none';
             document.getElementById('waiting-modal').style.display = 'flex';
@@ -476,7 +459,7 @@
             } catch(e) { console.error('Gagal verifikasi status:', e); }
         }
 
-        function beginExam() {
+        async function beginExam() {
             var keySelesai = 'selesai_' + selectedPaket + '_' + nisnSiswa;
             
             if (localStorage.getItem(keySelesai) === 'true') {
@@ -485,6 +468,29 @@
             }
             if (serverExamStatus !== 'DIBUKA') {
                 showModal('alert', 'Akses Dibatasi', 'Paket ujian ini sedang dikunci oleh Admin.');
+                return;
+            }
+
+            // Ambil soal sesuai paket yang dipilih siswa
+            var formData = new FormData();
+            formData.append('action', 'getSoal');
+            formData.append('paket', selectedPaket);
+
+            try {
+                var response = await fetch(scriptURL, { method: 'POST', body: formData });
+                var result = await response.json();
+                if (result.status === 'success') {
+                    examData = result.data; 
+                    if (!examData || examData.length === 0) {
+                        showModal('alert', 'Peringatan', 'Soal untuk paket ini belum tersedia atau kosong di spreadsheet.');
+                        return;
+                    }
+                } else { 
+                    showModal('alert', 'Database', 'Gagal memuat soal: ' + result.message); 
+                    return;
+                }
+            } catch (error) { 
+                showModal('alert', 'Koneksi', 'Gagal mengambil soal. Pastikan koneksi internet aktif.'); 
                 return;
             }
 
