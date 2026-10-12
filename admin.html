@@ -197,7 +197,6 @@
                     </div>
                 </div>
 
-                <!-- PERBAIKAN 1: Grafik ditarik mentok naik ke bawah teks judul -->
                 <div class="card-table" style="display: flex; flex-direction: column; justify-content: flex-start; align-items: center;">
                     <h3 style="margin-bottom: 10px; color: #444; width: 100%;">Statistik Penilaian Keseluruhan</h3>
                     <div style="width: 80%; margin: 0 auto;">
@@ -489,16 +488,12 @@
                 return !l.nilai_final || !l.nilai_final.toString().includes('Mengerjakan');
             });
 
-            // PERBAIKAN 2: Mencegah duplikasi data per akun. 
-            // Jika ada multi-entry untuk NISN yang sama, ambil hanya entry terbaru berdasarkan waktu submit,
-            // atau map unik per NISN sehingga satu akun hanya menampilkan 1 data terbaru.
             var uniqueMap = {};
             logSelesai.forEach(function(r) {
                 var nisn = r.nisn;
                 if (!uniqueMap[nisn]) {
                     uniqueMap[nisn] = r;
                 } else {
-                    // Jika sudah ada, bandingkan waktu; simpan yang paling baru (update data)
                     var existingTime = new Date(uniqueMap[nisn].waktu).getTime();
                     var currentTime = new Date(r.waktu).getTime();
                     if (currentTime > existingTime) {
@@ -508,8 +503,6 @@
             });
 
             var finalLogList = Object.values(uniqueMap);
-
-            // Urutkan berdasarkan waktu submit ascending
             finalLogList.sort(function(a, b) {
                 return new Date(a.waktu) - new Date(b.waktu);
             });
