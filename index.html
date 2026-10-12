@@ -269,14 +269,14 @@
         form.addEventListener("submit", function(event) {
             event.preventDefault();
             
-            const nisn = document.getElementById("username").value.trim();
+            const usernameVal = document.getElementById("username").value.trim();
             let password = document.getElementById("password").value.trim();
 
             btnLogin.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Memeriksa...';
             btnLogin.disabled = true;
 
             const formData = new FormData();
-            formData.append('nisn', nisn);
+            formData.append('username', usernameVal);
             formData.append('password', password);
 
             fetch(scriptURL, { method: 'POST', body: formData })
@@ -292,7 +292,7 @@
 
                     if (data.status === 'success') {
                         localStorage.setItem('isLoggedIn', 'true');
-                        localStorage.setItem('nisnSiswa', nisn);      
+                        localStorage.setItem('usernameSiswa', usernameVal);      
                         localStorage.setItem('namaSiswa', data.nama);
                         localStorage.setItem('kelasSiswa', data.kelas);
                         localStorage.setItem('role', data.role);
