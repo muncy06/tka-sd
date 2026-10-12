@@ -35,7 +35,6 @@
 
         #paketSelector { padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; font-weight: 600; color: #0d47a1; cursor: pointer; background: #f8fafc; }
         
-        /* PANEL KONTROL 5 PAKET */
         .paket-control-panel { display: flex; gap: 8px; align-items: center; background: #f8fafc; padding: 6px 12px; border-radius: 30px; border: 1px solid #cbd5e1; flex-wrap: wrap; }
         .paket-toggle-item { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: #475569; cursor: pointer; border-right: 1px solid #cbd5e1; padding-right: 8px; }
         .paket-toggle-item:last-child { border-right: none; padding-right: 0; }
@@ -142,7 +141,6 @@
             <div class="topbar-right">
                 <span style="font-size: 14px; color: #666; margin-right: 5px;">Halo, <b id="adminName">Admin</b></span>
                 
-                <!-- SELECTOR 5 PAKET -->
                 <select id="paketSelector" onchange="changePaketManually()">
                     <option value="PAKET_A">Hari 1: Paket A (Agama Islam, PKn, B.Indo)</option>
                     <option value="PAKET_B">Hari 2: Paket B (MTK, IPAS, PJOK)</option>
@@ -151,7 +149,6 @@
                     <option value="PAKET_E">Hari 1: Paket E (Agama Hindu, PKn, B.Indo)</option>
                 </select>
 
-                <!-- KONTROL CENTANG 5 PAKET -->
                 <div class="paket-control-panel">
                     <label class="paket-toggle-item"><input type="checkbox" id="checkPaketA" onchange="updatePaketStatusControl()"> A</label>
                     <label class="paket-toggle-item"><input type="checkbox" id="checkPaketB" onchange="updatePaketStatusControl()"> B</label>
@@ -200,12 +197,13 @@
                     </div>
                 </div>
 
-                <div class="card-table" style="display: flex; flex-direction: column; align-items: center;">
-                    <h3 style="margin-bottom: 15px; color: #444; width: 100%;">Statistik Penilaian Keseluruhan</h3>
-                    <div style="width: 80%; margin: auto;">
+                <!-- PERBAIKAN 1: Grafik ditarik mentok naik ke bawah teks judul -->
+                <div class="card-table" style="display: flex; flex-direction: column; justify-content: flex-start; align-items: center;">
+                    <h3 style="margin-bottom: 10px; color: #444; width: 100%;">Statistik Penilaian Keseluruhan</h3>
+                    <div style="width: 80%; margin: 0 auto;">
                         <canvas id="nilaiChart"></canvas>
                     </div>
-                    <p style="font-size: 12px; color: #888; margin-top: 15px; text-align: center;">Persentase Rata-Rata Total Poin Maksimal</p>
+                    <p style="font-size: 12px; color: #888; margin-top: 10px; text-align: center;">Persentase Rata-Rata Total Poin Maksimal</p>
                 </div>
             </div>
         </div>
@@ -412,7 +410,6 @@
             
             log.forEach(function(l) { logMap[l.nisn] = l; });
 
-            // PENGURUTAN SEPERTI MOTOGP (SIAPA YANG LOGIN / SELESAI DULUAN DI ATAS)
             var sortedSiswa = siswa.slice().sort(function(a, b) {
                 var logA = logMap[a.nisn];
                 var logB = logMap[b.nisn];
@@ -492,12 +489,32 @@
                 return !l.nilai_final || !l.nilai_final.toString().includes('Mengerjakan');
             });
 
-            // URUTKAN SIAPA YANG SELESAI DULUAN DI TOP PERTAMA (URUTAN ASCENDING BERDASARKAN WAKTU SUBMIT)
-            logSelesai.sort(function(a, b) {
+            // PERBAIKAN 2: Mencegah duplikasi data per akun. 
+            // Jika ada multi-entry untuk NISN yang sama, ambil hanya entry terbaru berdasarkan waktu submit,
+            // atau map unik per NISN sehingga satu akun hanya menampilkan 1 data terbaru.
+            var uniqueMap = {};
+            logSelesai.forEach(function(r) {
+                var nisn = r.nisn;
+                if (!uniqueMap[nisn]) {
+                    uniqueMap[nisn] = r;
+                } else {
+                    // Jika sudah ada, bandingkan waktu; simpan yang paling baru (update data)
+                    var existingTime = new Date(uniqueMap[nisn].waktu).getTime();
+                    var currentTime = new Date(r.waktu).getTime();
+                    if (currentTime > existingTime) {
+                        uniqueMap[nisn] = r;
+                    }
+                }
+            });
+
+            var finalLogList = Object.values(uniqueMap);
+
+            // Urutkan berdasarkan waktu submit ascending
+            finalLogList.sort(function(a, b) {
                 return new Date(a.waktu) - new Date(b.waktu);
             });
 
-            logSelesai.forEach(function(r) {
+            finalLogList.forEach(function(r) {
                 var originalIndex = log.indexOf(r);
                 var dateStr = new Date(r.waktu).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
                 var nTotal = parseFloat(r.nilai_akhir || 0);
