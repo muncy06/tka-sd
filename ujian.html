@@ -188,9 +188,8 @@
         <div class="card" style="text-align: center;">
             <i class="fas fa-shield-alt" style="font-size: 55px; color: #0d6efd; margin-bottom: 15px;"></i>
             <h2 style="color: #1e293b; margin-bottom: 8px; font-size: 24px;">Ruang Tunggu Ujian</h2>
-            <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">Silakan pilih paket soal yang ingin dikerjakan (Paket yang terbuka oleh panitia dapat dipilih):</p>
+            <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">Silakan pilih paket soal (Paket yang terkunci oleh admin tidak dapat dipilih/dikerjakan):</p>
             
-            <!-- PILIHAN PAKET SISWA -->
             <div style="text-align: left; margin-bottom: 10px;">
                 <label style="font-size: 12px; font-weight: 700; color: #475569;">PILIH PAKET SOAL:</label>
             </div>
@@ -210,7 +209,7 @@
             </div>
 
             <button class="btn-start" id="btnBeginExam" onclick="beginExam()" disabled>
-                <i class="fas fa-hourglass-half"></i> Pilih Paket Terbuka
+                <i class="fas fa-hourglass-half"></i> Memeriksa Status Paket...
             </button>
         </div>
     </div>
@@ -379,7 +378,7 @@
             } else if (type === 'confirm') {
                 icon.innerHTML = '<i class="fas fa-question-circle" style="color:#ffc107;"></i>';
                 actions.innerHTML = 
-                    '<button class="btn-modal btn-modal-cancel" onclick="closeModal()">Kembali Periksa</button>' +
+                    '<button class="btn-modal btn-modal-cancel" onclick="closeModal()">Kembali</button>' +
                     '<button class="btn-modal btn-modal-confirm" id="btnConfirmAction">Ya, Kumpulkan</button>';
                 document.getElementById('btnConfirmAction').onclick = function() {
                     closeModal();
@@ -468,7 +467,7 @@
                         btnBegin.innerHTML = '<i class="fas fa-play"></i> Mulai Kerjakan Paket Ini';
                         btnBegin.style.background = '#10b981';
                     } else {
-                        statusEl.innerHTML = '<span style="color:#ef4444; font-weight:bold;"><i class="fas fa-lock"></i> Status: TERKUNCI / DITUTUP oleh Panitia</span>';
+                        statusEl.innerHTML = '<span style="color:#ef4444; font-weight:bold;"><i class="fas fa-lock"></i> Status: TERKUNCI / DITUTUP oleh Admin</span>';
                         btnBegin.disabled = true;
                         btnBegin.innerHTML = '<i class="fas fa-lock"></i> Paket Terkunci';
                         btnBegin.style.background = '#64748b';
@@ -485,7 +484,7 @@
                 return;
             }
             if (serverExamStatus !== 'DIBUKA') {
-                showModal('alert', 'Akses Dibatasi', 'Paket ujian ini sedang dikunci/ditutup oleh Panitia.');
+                showModal('alert', 'Akses Dibatasi', 'Paket ujian ini sedang dikunci oleh Admin.');
                 return;
             }
 
@@ -493,9 +492,7 @@
             var savedAns = localStorage.getItem(saveKey);
             if (savedAns) {
                 try { userAnswers = JSON.parse(savedAns); } catch(e) { userAnswers = {}; }
-            } else {
-                userAnswers = {};
-            }
+            } else { userAnswers = {}; }
 
             clearInterval(clockInterval);
             clearInterval(statusPollingInterval);
@@ -563,7 +560,6 @@
 
         function saveRadioAnswer(soalId, answerVal) {
             userAnswers[soalId] = answerVal;
-            
             var btnTarget = document.getElementById('btn-num-' + currentQuestionIndex);
             if (btnTarget) btnTarget.classList.add('answered');
             
@@ -579,7 +575,6 @@
 
         function handleEssayTyping(soalId, textVal) {
             userAnswers[soalId] = textVal;
-            
             var btnTarget = document.getElementById('btn-num-' + currentQuestionIndex);
             var indicator = document.getElementById('saveIndicator');
             
