@@ -60,7 +60,7 @@
         @media(max-width: 1024px) { .dashboard-layout { grid-template-columns: 1fr; } }
 
         .card-table { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px;}
-        .card-table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .card-table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         
         .table-responsive { overflow-x: auto; width: 100%; }
         table { width: 100%; border-collapse: collapse; min-width: 600px; }
@@ -210,10 +210,7 @@
             <div class="card-table">
                 <div class="card-table-header">
                     <h3 style="color: #444;">Rekapitulasi Nilai Akhir & Analisis</h3>
-                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                        <input type="text" id="searchHasilInput" placeholder="Cari NISN / Nama Siswa..." oninput="renderLogTable(globalDataLog)" class="edit-input" style="width: 220px; padding: 7px 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px;">
-                        <button class="btn-reset-massal" onclick="resetMassalUjian()"><i class="fas fa-redo-alt"></i> Reset Massal Ujian Ini</button>
-                    </div>
+                    <button class="btn-reset-massal" onclick="resetMassalUjian()"><i class="fas fa-redo-alt"></i> Reset Massal Ujian Ini</button>
                 </div>
                 <div class="table-responsive">
                     <table>
@@ -433,16 +430,12 @@
             var totalNilai = 0;
             var logMap = {};
             
-            log.forEach(function(l) { 
-                var cleanNisn = l.nisn ? l.nisn.toString().trim() : '';
-                logMap[cleanNisn] = l; 
-            });
+            log.forEach(function(l) { logMap[l.nisn] = l; });
 
             var liveTbody = '';
 
             siswa.forEach(function(s) {
-                var cleanSiswaNisn = s.nisn ? s.nisn.toString().trim() : '';
-                var logItem = logMap[cleanSiswaNisn];
+                var logItem = logMap[s.nisn];
                 var statusHtml = '<span class="badge badge-belum">Belum Masuk</span>';
                 var waktuAktif = '-';
 
@@ -503,31 +496,11 @@
 
         function renderLogTable(log) {
             var tbody = '';
-            var searchKeyword = document.getElementById('searchHasilInput') ? document.getElementById('searchHasilInput').value.toLowerCase().trim() : '';
-
-            // Filter out "Mengerjakan"
             var logSelesai = log.filter(function(l) {
                 return !l.nilai_final || !l.nilai_final.toString().includes('Mengerjakan');
             });
 
-            // Deduplicate: Keep only the latest entry per NISN
-            var uniqueLogMap = {};
-            logSelesai.forEach(function(r) {
-                var nisnKey = r.nisn ? r.nisn.toString().trim() : '';
-                uniqueLogMap[nisnKey] = r; 
-            });
-            var uniqueLogList = Object.values(uniqueLogMap);
-
-            // Apply search filter if keyword exists
-            var filteredLog = uniqueLogList.filter(function(r) {
-                if (!searchKeyword) return true;
-                var nisnStr = r.nisn ? r.nisn.toString().toLowerCase() : '';
-                var namaStr = r.nama ? r.nama.toLowerCase() : '';
-                var kelasStr = r.kelas ? r.kelas.toLowerCase() : '';
-                return nisnStr.includes(searchKeyword) || namaStr.includes(searchKeyword) || kelasStr.includes(searchKeyword);
-            });
-
-            filteredLog.forEach(function(r) {
+            logSelesai.slice().reverse().forEach(function(r) {
                 var originalIndex = log.indexOf(r);
                 var dateStr = new Date(r.waktu).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
                 var nTotal = parseFloat(r.nilai_akhir || 0);
@@ -570,7 +543,7 @@
                 
                 tbody += '<tr>' +
                     '<td>' + dateStr + '</td>' +
-                    '<td><b>' + r.nisn + '</b></td>' +
+                    '<td>' + r.nisn + '</td>' +
                     '<td>' + r.nama + '</td>' +
                     '<td>' + r.kelas + '</td>' +
                     '<td style="font-size:14px; font-weight:bold; color:#0d6efd;">' + nPG + '</td>' +
@@ -583,7 +556,7 @@
                     '</td>' +
                 '</tr>';
             });
-            document.getElementById('hasilUjianBody').innerHTML = tbody || '<tr><td colspan="9" style="text-align:center;">Belum ada siswa yang menyelesaikan ujian atau data tidak ditemukan.</td></tr>';
+            document.getElementById('hasilUjianBody').innerHTML = tbody || '<tr><td colspan="9" style="text-align:center;">Belum ada siswa yang menyelesaikan ujian.</td></tr>';
         }
 
         function calculateSimilarity(userAnswer, trueAnswer) {
@@ -703,6 +676,7 @@
             });
         }
 
+        /* FUNGSI RESET SISWA */
         async function resetSiswa(nisnSiswa, namaSiswa) {
             if(!confirm("Anda yakin ingin mereset ujian siswa " + namaSiswa + " pada paket ini? Data jawaban siswa ini akan dihapus dan siswa harus mengerjakan ulang dari awal.")) return;
 
