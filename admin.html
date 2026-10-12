@@ -29,17 +29,17 @@
 
         .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; position: relative; }
         
-        .topbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
+        .topbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; flex-wrap: wrap; gap: 10px;}
         .topbar h1 { font-size: 20px; color: #333; }
-        .topbar-right { display: flex; gap: 15px; align-items: center; flex-wrap: wrap;}
+        .topbar-right { display: flex; gap: 12px; align-items: center; flex-wrap: wrap;}
 
         #paketSelector { padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; font-weight: 600; color: #0d47a1; cursor: pointer; background: #f8fafc; }
         
-        /* PANEL KONTROL MULTI-PAKET */
-        .paket-control-panel { display: flex; gap: 10px; align-items: center; background: #f8fafc; padding: 6px 14px; border-radius: 30px; border: 1px solid #cbd5e1; }
-        .paket-toggle-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #475569; cursor: pointer; border-right: 1px solid #cbd5e1; padding-right: 10px; }
+        /* PANEL KONTROL 5 PAKET */
+        .paket-control-panel { display: flex; gap: 8px; align-items: center; background: #f8fafc; padding: 6px 12px; border-radius: 30px; border: 1px solid #cbd5e1; flex-wrap: wrap; }
+        .paket-toggle-item { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: #475569; cursor: pointer; border-right: 1px solid #cbd5e1; padding-right: 8px; }
         .paket-toggle-item:last-child { border-right: none; padding-right: 0; }
-        .paket-toggle-item input { cursor: pointer; transform: scale(1.2); }
+        .paket-toggle-item input { cursor: pointer; transform: scale(1.1); }
 
         .btn-sync { background: #17a2b8; color: white; padding: 8px 15px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: 0.3s; cursor: pointer; }
         .btn-sync:hover { background: #138496; }
@@ -58,7 +58,7 @@
         @media(max-width: 1024px) { .dashboard-layout { grid-template-columns: 1fr; } }
 
         .card-table { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px;}
-        .card-table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .card-table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
         
         .table-responsive { overflow-x: auto; width: 100%; }
         table { width: 100%; border-collapse: collapse; min-width: 600px; }
@@ -140,26 +140,24 @@
         <div class="topbar">
             <h1 id="topbar-title">Dashboard Live Monitor</h1>
             <div class="topbar-right">
-                <span style="font-size: 14px; color: #666; margin-right: 10px;">Halo, <b id="adminName">Admin</b></span>
+                <span style="font-size: 14px; color: #666; margin-right: 5px;">Halo, <b id="adminName">Admin</b></span>
                 
-                <!-- SELECTOR PAKET UNTUK MONITORING & REKAP -->
+                <!-- SELECTOR 5 PAKET -->
                 <select id="paketSelector" onchange="changePaketManually()">
                     <option value="PAKET_A">Hari 1: Paket A (Agama, PKn, B.Indo)</option>
                     <option value="PAKET_B">Hari 2: Paket B (MTK, IPAS, PJOK)</option>
                     <option value="PAKET_C">Hari 3: Paket C (Seni, B.Inggris)</option>
+                    <option value="PAKET_D">Paket D</option>
+                    <option value="PAKET_E">Paket E</option>
                 </select>
 
-                <!-- KONTROL BUKA/TUTUP MASING-MASING PAKET -->
+                <!-- KONTROL CENTANG 5 PAKET -->
                 <div class="paket-control-panel">
-                    <label class="paket-toggle-item">
-                        <input type="checkbox" id="checkPaketA" onchange="updatePaketStatusControl()"> Paket A
-                    </label>
-                    <label class="paket-toggle-item">
-                        <input type="checkbox" id="checkPaketB" onchange="updatePaketStatusControl()"> Paket B
-                    </label>
-                    <label class="paket-toggle-item">
-                        <input type="checkbox" id="checkPaketC" onchange="updatePaketStatusControl()"> Paket C
-                    </label>
+                    <label class="paket-toggle-item"><input type="checkbox" id="checkPaketA" onchange="updatePaketStatusControl()"> A</label>
+                    <label class="paket-toggle-item"><input type="checkbox" id="checkPaketB" onchange="updatePaketStatusControl()"> B</label>
+                    <label class="paket-toggle-item"><input type="checkbox" id="checkPaketC" onchange="updatePaketStatusControl()"> C</label>
+                    <label class="paket-toggle-item"><input type="checkbox" id="checkPaketD" onchange="updatePaketStatusControl()"> D</label>
+                    <label class="paket-toggle-item"><input type="checkbox" id="checkPaketE" onchange="updatePaketStatusControl()"> E</label>
                 </div>
 
                 <button class="btn-sync" onclick="loadData(true)"><i class="fas fa-sync-alt"></i> Refresh</button>
@@ -324,11 +322,12 @@
             var selector = document.getElementById('paketSelector');
             if (selector) selector.value = currentPaket;
 
-            // PaketDibukaObj adalah objek seperti {PAKET_A: true, PAKET_B: true, PAKET_C: false}
             if (paketDibukaObj) {
-                document.getElementById('checkPaketA').checked = !!paketDibukaObj['PAKET_A'];
-                document.getElementById('checkPaketB').checked = !!paketDibukaObj['PAKET_B'];
-                document.getElementById('checkPaketC').checked = !!paketDibukaObj['PAKET_C'];
+                document.getElementById('checkPaketA').checked = paketDibukaObj['status_paket_a'] === 'DIBUKA' || paketDibukaObj['PAKET_A'] === true;
+                document.getElementById('checkPaketB').checked = paketDibukaObj['status_paket_b'] === 'DIBUKA' || paketDibukaObj['PAKET_B'] === true;
+                document.getElementById('checkPaketC').checked = paketDibukaObj['status_paket_c'] === 'DIBUKA' || paketDibukaObj['PAKET_C'] === true;
+                document.getElementById('checkPaketD').checked = paketDibukaObj['status_paket_d'] === 'DIBUKA' || paketDibukaObj['PAKET_D'] === true;
+                document.getElementById('checkPaketE').checked = paketDibukaObj['status_paket_e'] === 'DIBUKA' || paketDibukaObj['PAKET_E'] === true;
             }
         }
 
@@ -343,13 +342,17 @@
             var isOpenA = document.getElementById('checkPaketA').checked;
             var isOpenB = document.getElementById('checkPaketB').checked;
             var isOpenC = document.getElementById('checkPaketC').checked;
+            var isOpenD = document.getElementById('checkPaketD').checked;
+            var isOpenE = document.getElementById('checkPaketE').checked;
 
             showLoader('Memperbarui Status Paket...');
             var formData = new FormData();
             formData.append('action', 'setMultiPaketStatus');
-            formData.append('paket_a', isOpenA ? 'DIBUKA' : 'DITUTUP');
-            formData.append('paket_b', isOpenB ? 'DIBUKA' : 'DITUTUP');
-            formData.append('paket_c', isOpenC ? 'DIBUKA' : 'DITUTUP');
+            formData.append('status_paket_a', isOpenA ? 'DIBUKA' : 'DITUTUP');
+            formData.append('status_paket_b', isOpenB ? 'DIBUKA' : 'DITUTUP');
+            formData.append('status_paket_c', isOpenC ? 'DIBUKA' : 'DITUTUP');
+            formData.append('status_paket_d', isOpenD ? 'DIBUKA' : 'DITUTUP');
+            formData.append('status_paket_e', isOpenE ? 'DIBUKA' : 'DITUTUP');
 
             try {
                 var res = await fetch(scriptURL, { method: 'POST', body: formData });
