@@ -34,14 +34,12 @@
         .topbar-right { display: flex; gap: 15px; align-items: center; flex-wrap: wrap;}
 
         #paketSelector { padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; font-weight: 600; color: #0d47a1; cursor: pointer; background: #f8fafc; }
-        .exam-control-box { display: flex; align-items: center; gap: 10px; background: #f8fafc; padding: 6px 14px; border-radius: 30px; border: 1px solid #cbd5e1; }
-        .exam-status-indicator { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
-        .status-open { background: #28a745; box-shadow: 0 0 8px #28a745; }
-        .status-closed { background: #dc3545; box-shadow: 0 0 8px #dc3545; }
         
-        .btn-toggle-exam { border: none; padding: 7px 15px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.3s; color: white; }
-        .btn-open { background: #28a745; } .btn-open:hover { background: #218838; }
-        .btn-close { background: #dc3545; } .btn-close:hover { background: #c82333; }
+        /* PANEL KONTROL MULTI-PAKET */
+        .paket-control-panel { display: flex; gap: 10px; align-items: center; background: #f8fafc; padding: 6px 14px; border-radius: 30px; border: 1px solid #cbd5e1; }
+        .paket-toggle-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #475569; cursor: pointer; border-right: 1px solid #cbd5e1; padding-right: 10px; }
+        .paket-toggle-item:last-child { border-right: none; padding-right: 0; }
+        .paket-toggle-item input { cursor: pointer; transform: scale(1.2); }
 
         .btn-sync { background: #17a2b8; color: white; padding: 8px 15px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: 0.3s; cursor: pointer; }
         .btn-sync:hover { background: #138496; }
@@ -144,16 +142,24 @@
             <div class="topbar-right">
                 <span style="font-size: 14px; color: #666; margin-right: 10px;">Halo, <b id="adminName">Admin</b></span>
                 
+                <!-- SELECTOR PAKET UNTUK MONITORING & REKAP -->
                 <select id="paketSelector" onchange="changePaketManually()">
                     <option value="PAKET_A">Hari 1: Paket A (Agama, PKn, B.Indo)</option>
                     <option value="PAKET_B">Hari 2: Paket B (MTK, IPAS, PJOK)</option>
                     <option value="PAKET_C">Hari 3: Paket C (Seni, B.Inggris)</option>
                 </select>
 
-                <div class="exam-control-box">
-                    <span id="statusIndicator" class="exam-status-indicator status-closed"></span>
-                    <span id="statusLabel" style="font-size: 13px; font-weight: 700; color: #475569;">DITUTUP</span>
-                    <button id="btnToggleExam" class="btn-toggle-exam btn-open" onclick="toggleExamControl()">Buka Ujian</button>
+                <!-- KONTROL BUKA/TUTUP MASING-MASING PAKET -->
+                <div class="paket-control-panel">
+                    <label class="paket-toggle-item">
+                        <input type="checkbox" id="checkPaketA" onchange="updatePaketStatusControl()"> Paket A
+                    </label>
+                    <label class="paket-toggle-item">
+                        <input type="checkbox" id="checkPaketB" onchange="updatePaketStatusControl()"> Paket B
+                    </label>
+                    <label class="paket-toggle-item">
+                        <input type="checkbox" id="checkPaketC" onchange="updatePaketStatusControl()"> Paket C
+                    </label>
                 </div>
 
                 <button class="btn-sync" onclick="loadData(true)"><i class="fas fa-sync-alt"></i> Refresh</button>
@@ -287,7 +293,6 @@
         var globalDataSiswa = []; 
         var globalDataLog = [];
         var globalDataSoal = [];
-        var currentStatusUjian = "DITUTUP";
         var currentPaket = "PAKET_A";
         var isEditingRow = false;
 
@@ -314,55 +319,48 @@
             return '<span class="badge badge-merah">Kurang Baik</span>';
         }
 
-        function renderExamStatusUI(status, paketAktif) {
-            currentStatusUjian = status || "DITUTUP";
+        function renderExamStatusUI(paketDibukaObj, paketAktif) {
             currentPaket = paketAktif || "PAKET_A";
-            
-            var indicator = document.getElementById('statusIndicator');
-            var label = document.getElementById('statusLabel');
-            var btn = document.getElementById('btnToggleExam');
             var selector = document.getElementById('paketSelector');
-
             if (selector) selector.value = currentPaket;
 
-            if (currentStatusUjian === 'DIBUKA') {
-                indicator.className = 'exam-status-indicator status-open';
-                label.innerText = 'DIBUKA';
-                btn.className = 'btn-toggle-exam btn-close';
-                btn.innerText = 'Tutup Ujian';
-            } else {
-                indicator.className = 'exam-status-indicator status-closed';
-                label.innerText = 'DITUTUP';
-                btn.className = 'btn-toggle-exam btn-open';
-                btn.innerText = 'Buka Ujian';
+            // PaketDibukaObj adalah objek seperti {PAKET_A: true, PAKET_B: true, PAKET_C: false}
+            if (paketDibukaObj) {
+                document.getElementById('checkPaketA').checked = !!paketDibukaObj['PAKET_A'];
+                document.getElementById('checkPaketB').checked = !!paketDibukaObj['PAKET_B'];
+                document.getElementById('checkPaketC').checked = !!paketDibukaObj['PAKET_C'];
             }
         }
 
         async function changePaketManually() {
-            var selectedPaket = document.getElementById('paketSelector').value;
-            currentPaket = selectedPaket;
-            showLoader('Memuat Status Paket...');
+            currentPaket = document.getElementById('paketSelector').value;
+            showLoader('Memuat Data Paket...');
             await loadData(false);
             hideLoader();
         }
 
-        async function toggleExamControl() {
-            showLoader('Mengubah Status & Paket Ujian...');
+        async function updatePaketStatusControl() {
+            var isOpenA = document.getElementById('checkPaketA').checked;
+            var isOpenB = document.getElementById('checkPaketB').checked;
+            var isOpenC = document.getElementById('checkPaketC').checked;
+
+            showLoader('Memperbarui Status Paket...');
             var formData = new FormData();
-            formData.append('action', 'toggleUjian');
-            formData.append('paket', document.getElementById('paketSelector').value);
+            formData.append('action', 'setMultiPaketStatus');
+            formData.append('paket_a', isOpenA ? 'DIBUKA' : 'DITUTUP');
+            formData.append('paket_b', isOpenB ? 'DIBUKA' : 'DITUTUP');
+            formData.append('paket_c', isOpenC ? 'DIBUKA' : 'DITUTUP');
 
             try {
                 var res = await fetch(scriptURL, { method: 'POST', body: formData });
                 var data = await res.json();
                 if (data.status === 'success') {
-                    renderExamStatusUI(data.status_ujian, data.paket_aktif);
-                    await loadData(false);
+                    renderExamStatusUI(data.paket_dibuka, data.paket_aktif);
                 } else {
-                    alert('Gagal dari server: ' + (data.message || 'Terjadi kesalahan'));
+                    alert('Gagal memperbarui status: ' + (data.message || 'Error'));
                 }
             } catch(e) { 
-                alert('Gagal terhubung ke Apps Script: ' + e.message); 
+                alert('Gagal terhubung ke server: ' + e.message); 
             } finally { hideLoader(); }
         }
 
@@ -380,7 +378,7 @@
                     globalDataSiswa = result.siswa || []; 
                     globalDataLog = result.log || [];
                     globalDataSoal = result.soal || [];
-                    renderExamStatusUI(result.status_ujian, result.paket_aktif);
+                    renderExamStatusUI(result.paket_dibuka, result.paket_aktif);
 
                     renderDashboardLive(globalDataSiswa, globalDataLog);
                     renderLogTable(globalDataLog);
@@ -516,9 +514,7 @@
                             nEsai = totalEsai.toFixed(2);
                         }
                     }
-                } catch(e) {
-                     console.error("Gagal parse raw_answers", e);
-                }
+                } catch(e) { console.error("Gagal parse", e); }
                 
                 tbody += '<tr>' +
                     '<td>' + dateStr + '</td>' +
@@ -564,9 +560,7 @@
                 '<p><b>Kategori Passing Grade:</b> ' + getStatusBadge(nilaiTotal) + '</p>';
 
             var jawabanSiswaObj = {};
-            try {
-                if (data.raw_answers) jawabanSiswaObj = JSON.parse(data.raw_answers);
-            } catch (e) { console.error(e); }
+            try { if (data.raw_answers) jawabanSiswaObj = JSON.parse(data.raw_answers); } catch (e) { console.error(e); }
 
             var totalBenarPG = 0;
             var totalSoalPG = 0;
@@ -624,7 +618,6 @@
             }
 
             document.getElementById('detailSoalBody').innerHTML = tbodySoal;
-
             var nilaiPGDiraih = totalSoalPG > 0 ? (totalBenarPG / totalSoalPG) * 100 : 0;
             var sisaPoinMaksimal = 100 - nilaiPGDiraih; 
             if(sisaPoinMaksimal < 0) sisaPoinMaksimal = 0;
@@ -670,9 +663,7 @@
                 if(result.status === 'success') {
                     alert("Berhasil mereset data siswa.");
                     loadData(true);
-                } else {
-                    alert("Gagal mereset: " + result.message);
-                }
+                } else { alert("Gagal mereset: " + result.message); }
             } catch (e) { alert("Error koneksi saat mereset."); }
             finally { hideLoader(); }
         }
@@ -691,9 +682,7 @@
                 if(result.status === 'success') {
                     alert("Semua data siswa pada paket ini berhasil dibersihkan.");
                     loadData(true);
-                } else {
-                    alert("Gagal mereset: " + result.message);
-                }
+                } else { alert("Gagal mereset: " + result.message); }
             } catch (e) { alert("Error koneksi saat mereset."); }
             finally { hideLoader(); }
         }
