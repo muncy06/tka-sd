@@ -364,6 +364,37 @@
         var typingTimer = null; 
         var nisnSiswa = localStorage.getItem('nisnSiswa') || 'N/A';
 
+        // FUNGSI PENGACAK SOAL BERBASIS SEED (NISN SISWA)
+        // Menjamin setiap siswa mendapat urutan acak yang unik & konsisten (tidak berubah-ubah)
+        function hashCode(str) {
+            var hash = 0;
+            for (var i = 0; i < str.length; i++) {
+                hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                hash |= 0;
+            }
+            return Math.abs(hash);
+        }
+
+        function shuffleQuestionsBySeed(array, seedStr) {
+            var currentIndex = array.length, temporaryValue, randomIndex;
+            var seed = hashCode(seedStr);
+            
+            function pseudoRandom() {
+                seed = (seed * 9301 + 49297) % 233280;
+                return seed / 233280;
+            }
+
+            var shuffledArray = array.slice();
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(pseudoRandom() * currentIndex);
+                currentIndex -= 1;
+                temporaryValue = shuffledArray[currentIndex];
+                shuffledArray[currentIndex] = shuffledArray[randomIndex];
+                shuffledArray[randomIndex] = temporaryValue;
+            }
+            return shuffledArray;
+        }
+
         function showModal(type, title, message, onConfirm = null) {
             var modal = document.getElementById('custom-modal');
             var icon = document.getElementById('modalIcon');
@@ -479,11 +510,13 @@
                 var response = await fetch(scriptURL, { method: 'POST', body: formData });
                 var result = await response.json();
                 if (result.status === 'success') {
-                    examData = result.data; 
-                    if (!examData || examData.length === 0) {
+                    var rawSoal = result.data; 
+                    if (!rawSoal || rawSoal.length === 0) {
                         showModal('alert', 'Peringatan', 'Soal untuk paket ini belum tersedia atau kosong di spreadsheet.');
                         return;
                     }
+                    // MENGACAK URUTAN SOAL KHUSUS UNTUK SISWA INI (BERDASARKAN NISN)
+                    examData = shuffleQuestionsBySeed(rawSoal, nisnSiswa + selectedPaket);
                 } else { 
                     showModal('alert', 'Database', 'Gagal memuat soal: ' + result.message); 
                     return;
