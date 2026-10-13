@@ -91,6 +91,9 @@
         .btn-reset:hover { background: #c82333; }
         .btn-reset-massal { background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.3s; font-size: 13px; }
         .btn-reset-massal:hover { background: #c82333; }
+        
+        .btn-cetak-pdf { background: #198754; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.3s; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-cetak-pdf:hover { background: #157347; }
 
         #loader { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: #0d6efd; display: none; }
 
@@ -111,6 +114,24 @@
         .text-benar { color: #28a745; font-weight: bold; }
         .text-salah { color: #dc3545; font-weight: bold; }
         .text-warning { color: #f59e0b; font-weight: bold; }
+
+        /* KHUSUS CETAK PDF / PRINT */
+        .print-header { display: none; }
+        @media print {
+            body { background: white; display: block; height: auto; overflow: auto; }
+            .sidebar, .topbar, .action-btn, .btn-reset-massal, .btn-cetak-pdf, .btn-reset, .btn-detail, .nav-links, .sidebar-footer { display: none !important; }
+            .main-content { overflow: visible !important; width: 100% !important; padding: 0 !important; }
+            #hasil { display: block !important; padding: 0 !important; }
+            .card-table { box-shadow: none !important; border: none !important; padding: 0 !important; margin: 0 !important; }
+            .card-table-header { justify-content: center !important; border-bottom: 2px solid #333 !important; padding-bottom: 10px; margin-bottom: 15px; }
+            .print-header { display: block !important; text-align: center; margin-bottom: 20px; }
+            .print-header h2 { font-size: 18px; color: #000; text-transform: uppercase; }
+            .print-header p { font-size: 12px; color: #555; }
+            table { width: 100% !important; border-collapse: collapse !important; }
+            th, td { border: 1px solid #999 !important; padding: 8px !important; font-size: 11px !important; color: #000 !important; }
+            th { background-color: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .badge { border: 1px solid #333 !important; color: #000 !important; background: none !important; font-weight: bold; }
+        }
     </style>
 </head>
 <body>
@@ -209,13 +230,31 @@
 
         <div id="hasil" class="content-section">
             <div class="card-table">
+                <div class="print-header">
+                    <h2>LAPORAN REKAPITULASI HASIL UJIAN TKA 2026</h2>
+                    <p>SD INPRES BINANGA 1 MAMUJU</p>
+                    <p id="printPaketInfo" style="font-weight: bold; margin-top: 5px;">PAKET UJIAN</p>
+                </div>
+                
                 <div class="card-table-header">
                     <h3 style="color: #444;">Rekapitulasi Nilai Akhir & Analisis</h3>
-                    <button class="btn-reset-massal" onclick="resetMassalUjian()"><i class="fas fa-redo-alt"></i> Reset Massal Ujian Ini</button>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn-cetak-pdf" onclick="cetakPDFRekap()"><i class="fas fa-file-pdf"></i> Cetak PDF / Rekap</button>
+                        <button class="btn-reset-massal" onclick="resetMassalUjian()"><i class="fas fa-redo-alt"></i> Reset Massal Ujian Ini</button>
+                    </div>
                 </div>
+                
+                <!-- GRAFIK STATISTIK REKAP UNTUK CETAK PDF -->
+                <div style="margin-bottom: 25px; background: #fafafa; padding: 15px; border-radius: 8px; border: 1px solid #eee; display: flex; flex-direction: column; align-items: center;" id="rekapChartContainer">
+                    <h4 style="color: #444; font-size: 14px; margin-bottom: 10px;">Grafik Komposisi Rata-Rata Nilai Keseluruhan</h4>
+                    <div style="width: 220px; height: 180px;">
+                        <canvas id="rekapPrintChart"></canvas>
+                    </div>
+                </div>
+
                 <div class="table-responsive">
                     <table>
-                        <thead><tr><th>Waktu Submit</th><th>Username</th><th>Nama Siswa</th><th>Kelas</th><th>Nilai PG</th><th>Nilai Esai</th><th>Nilai Total</th><th>Predikat</th><th style="text-align:center;">Analisis</th></tr></thead>
+                        <thead><tr><th>Waktu Submit</th><th>Username</th><th>Nama Siswa</th><th>Kelas</th><th>Nilai PG</th><th>Nilai Esai</th><th>Nilai Total</th><th>Predikat</th><th class="no-print" style="text-align:center;">Analisis</th></tr></thead>
                         <tbody id="hasilUjianBody"></tbody>
                     </table>
                 </div>
@@ -285,6 +324,7 @@
 
         var myChart = null;
         var studentChart = null;
+        var rekapPrintChartObj = null;
         var globalDataSiswa = []; 
         var globalDataLog = [];
         var globalDataSoal = [];
@@ -318,6 +358,9 @@
             currentPaket = paketAktif || "PAKET_A";
             var selector = document.getElementById('paketSelector');
             if (selector) selector.value = currentPaket;
+
+            var printInfo = document.getElementById('printPaketInfo');
+            if (printInfo) printInfo.innerText = "Kategori: " + selector.options[selector.selectedIndex].text;
 
             if (paketDibukaObj) {
                 document.getElementById('checkPaketA').checked = paketDibukaObj['status_paket_a'] === 'DIBUKA' || paketDibukaObj['PAKET_A'] === true;
@@ -458,6 +501,7 @@
             var avg = selesaiCount > 0 ? (totalNilai / selesaiCount).toFixed(2) : 0;
             document.getElementById('avgNilai').innerText = avg;
             renderClassChart(avg);
+            renderRekapPrintChart(avg);
         }
 
         function renderClassChart(rataRataBenar) {
@@ -479,6 +523,28 @@
                     }]
                 },
                 options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        function renderRekapPrintChart(rataRataBenar) {
+            var benar = parseFloat(rataRataBenar) || 0;
+            var salah = 100 - benar; 
+            var chartEl = document.getElementById('rekapPrintChart');
+            if (!chartEl) return;
+            var ctx = chartEl.getContext('2d');
+            if (rekapPrintChartObj) rekapPrintChartObj.destroy();
+
+            rekapPrintChartObj = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Rata-Rata Poin', 'Sisa Maksimal'],
+                    datasets: [{
+                        data: [benar, salah],
+                        backgroundColor: ['#0d6efd', '#dc3545'],
+                        borderWidth: 1, borderColor: '#fff'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
             });
         }
 
@@ -555,13 +621,17 @@
                     '<td style="font-size:14px; font-weight:bold; color:#f59e0b;">' + nEsai + '</td>' +
                     '<td style="font-size:16px; font-weight:bold; color:#0d47a1;">' + nTotal.toFixed(2) + '</td>' +
                     '<td>' + getStatusBadge(nTotal) + '</td>' +
-                    '<td style="text-align:center;">' +
+                    '<td class="no-print" style="text-align:center;">' +
                         '<button class="btn-detail" onclick="openDetailModal(' + originalIndex + ')"><i class="fas fa-eye"></i> Detail</button>' +
                         '<button class="btn-reset" onclick="resetSiswa(\'' + r.nisn + '\', \'' + r.nama + '\')"><i class="fas fa-redo"></i> Reset</button>' +
                     '</td>' +
                 '</tr>';
             });
             document.getElementById('hasilUjianBody').innerHTML = tbody || '<tr><td colspan="9" style="text-align:center;">Belum ada siswa yang menyelesaikan ujian.</td></tr>';
+        }
+
+        function cetakPDFRekap() {
+            window.print();
         }
 
         function calculateSimilarity(userAnswer, trueAnswer) {
