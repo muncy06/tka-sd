@@ -364,8 +364,6 @@
         var typingTimer = null; 
         var nisnSiswa = localStorage.getItem('nisnSiswa') || 'N/A';
 
-        // FUNGSI PENGACAK SOAL BERBASIS SEED (NISN SISWA)
-        // Menjamin setiap siswa mendapat urutan acak yang unik & konsisten (tidak berubah-ubah)
         function hashCode(str) {
             var hash = 0;
             for (var i = 0; i < str.length; i++) {
@@ -515,7 +513,6 @@
                         showModal('alert', 'Peringatan', 'Soal untuk paket ini belum tersedia atau kosong di spreadsheet.');
                         return;
                     }
-                    // MENGACAK URUTAN SOAL KHUSUS UNTUK SISWA INI (BERDASARKAN NISN)
                     examData = shuffleQuestionsBySeed(rawSoal, nisnSiswa + selectedPaket);
                 } else { 
                     showModal('alert', 'Database', 'Gagal memuat soal: ' + result.message); 
