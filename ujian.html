@@ -53,13 +53,6 @@
         .btn-modal-cancel { background: #e2e8f0; color: #475569; }
         .btn-modal-confirm { background: #0d6efd; color: white; }
 
-        .input-pass {
-            width: 100%; padding: 12px; border: 2px solid #cbd5e1; border-radius: 8px;
-            font-size: 20px; text-align: center; margin-bottom: 15px; outline: none; transition: 0.3s;
-            font-family: monospace; font-weight: bold; letter-spacing: 6px;
-        }
-        .input-pass:focus { border-color: #dc3545; }
-
         .header {
             background: #0d47a1; color: white; padding: 12px 30px; display: flex;
             justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -234,14 +227,12 @@
         </div>
     </div>
 
+    <!-- MODAL KELUAR AKUN -->
     <div id="exit-modal">
         <div class="modal-box">
-            <div class="modal-icon"><i class="fas fa-lock" style="color: #dc3545;"></i></div>
-            <div class="modal-title">Konfirmasi Pengawas</div>
-            <div class="modal-message">Masukkan PIN pengawas ruangan untuk menutup sesi ujian pada perangkat ini.</div>
-            
-            <input type="password" id="exitPassword" class="input-pass" placeholder="****" autocomplete="off" inputmode="numeric">
-            <p id="exitErrorText" style="color: #dc3545; font-size: 13px; font-weight: 600; margin-bottom: 15px; display: none;">PIN Salah!</p>
+            <div class="modal-icon"><i class="fas fa-sign-out-alt" style="color: #dc3545;"></i></div>
+            <div class="modal-title">Keluar dari akun Anda</div>
+            <div class="modal-message">Keluar dari akun Anda</div>
 
             <div class="modal-actions">
                 <button class="btn-modal btn-modal-cancel" onclick="document.getElementById('exit-modal').style.display='none'">Batal</button>
@@ -810,22 +801,12 @@
 
         function promptExit() {
             document.getElementById('exit-modal').style.display = 'flex';
-            document.getElementById('exitPassword').value = '';
-            document.getElementById('exitErrorText').style.display = 'none';
-            document.getElementById('exitPassword').focus();
         }
 
         function verifyExit() {
-            var pass = document.getElementById('exitPassword').value.trim();
-            if (pass === '2026') {
-                localStorage.removeItem('isLoggedIn');
-                localStorage.removeItem('role');
-                window.location.href = 'index.html';
-            } else {
-                document.getElementById('exitErrorText').style.display = 'block';
-                document.getElementById('exitPassword').value = '';
-                document.getElementById('exitPassword').focus();
-            }
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('role');
+            window.location.href = 'index.html';
         }
     </script>
 </body>
