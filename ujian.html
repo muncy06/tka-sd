@@ -341,6 +341,19 @@
             window.location.href = 'index.html';
         }
 
+        var nisnSiswa = localStorage.getItem('nisnSiswa') || 'N/A';
+
+        // Pengecekan Single Device Session secara berkala (jika login di perangkat lain, perangkat ini otomatis logout)
+        setInterval(function() {
+            var activeToken = localStorage.getItem('activeDeviceToken_' + nisnSiswa);
+            var currentDeviceToken = localStorage.getItem('deviceSessionToken');
+            if (activeToken && currentDeviceToken && activeToken !== currentDeviceToken) {
+                alert('Akun Anda telah login di perangkat lain. Sesi di perangkat ini berakhir.');
+                localStorage.clear();
+                window.location.href = 'index.html';
+            }
+        }, 4000);
+
         document.getElementById('displayNama').innerText = localStorage.getItem('namaSiswa') || 'NAMA SISWA';
         document.getElementById('displayKelas').innerText = localStorage.getItem('kelasSiswa') || 'Kelas';
 
@@ -353,7 +366,6 @@
         var serverExamStatus = "DITUTUP";
         var selectedPaket = "PAKET_A"; 
         var typingTimer = null; 
-        var nisnSiswa = localStorage.getItem('nisnSiswa') || 'N/A';
 
         function hashCode(str) {
             var hash = 0;
