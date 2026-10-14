@@ -632,11 +632,6 @@
                                 }
                             });
 
-                            var totalSoalAll = totalPG + totalEsaiCount;
-                            if (totalSoalAll > 0) {
-                                nTotal = Math.min(100, ((benarPG + totalEsaiScore) / totalSoalAll) * 100);
-                            }
-
                             nPG = totalPG > 0 ? ((benarPG / totalPG) * 100).toFixed(2) : "0";
                             nEsai = totalEsaiCount > 0 ? ((totalEsaiScore / totalEsaiCount) * 100).toFixed(2) : "0";
                         }
@@ -696,6 +691,8 @@
         function openDetailModal(logIndex) {
             var data = globalDataLog[logIndex];
             if (!data) return;
+            
+            // Mengambil nilai akhir total secara presisi dari database/log tersimpan
             var nilaiTotal = Math.min(100, parseFloat(data.nilai_akhir || 0)).toFixed(2);
             
             document.getElementById('detailHeaderContent').innerHTML = 
@@ -707,10 +704,6 @@
             var jawabanSiswaObj = {};
             try { if (data.raw_answers) jawabanSiswaObj = JSON.parse(data.raw_answers); } catch (e) { console.error(e); }
 
-            var totalBenarPG = 0;
-            var totalSoalPG = 0;
-            var totalEsaiScore = 0;
-            var totalEsaiCount = 0;
             var tbodySoal = '';
 
             if (globalDataSoal.length > 0) {
@@ -724,11 +717,7 @@
                     var warnaJawab = "#333";
 
                     if (isEssay) {
-                        totalEsaiCount++;
                         var persentase = calculateSimilarity(jawabSiswa, kunciAsli);
-                        var poinEsaiSub = (persentase / 100); 
-                        totalEsaiScore += poinEsaiSub;
-
                         if (persentase >= 70) {
                             statusTeks = '<span style="color:#28a745; font-weight:bold;"><i class="fas fa-check-double"></i> ' + persentase + '% Mirip</span>';
                             warnaJawab = '#28a745'; 
@@ -740,10 +729,7 @@
                             warnaJawab = '#dc3545'; 
                         }
                     } else {
-                        totalSoalPG++;
                         var isBenar = (jawabSiswa.toUpperCase() === kunciAsli.toUpperCase());
-                        if (isBenar) totalBenarPG++; 
-                        
                         statusTeks = isBenar ? '<span class="text-benar"><i class="fas fa-check"></i> Benar</span>' : '<span class="text-salah"><i class="fas fa-times"></i> Salah</span>';
                         warnaJawab = isBenar ? '#28a745' : '#dc3545';
                     }
@@ -766,8 +752,7 @@
 
             document.getElementById('detailSoalBody').innerHTML = tbodySoal;
             
-            var totalSoalAll = totalSoalPG + totalEsaiCount;
-            var skorFinalCalc = totalSoalAll > 0 ? Math.min(100, ((totalBenarPG + totalEsaiScore) / totalSoalAll) * 100) : 0;
+            var skorFinalCalc = parseFloat(nilaiTotal);
             var sisaPoinMaksimal = 100 - skorFinalCalc; 
             if(sisaPoinMaksimal < 0) sisaPoinMaksimal = 0;
 
