@@ -227,7 +227,6 @@
         </div>
     </div>
 
-    <!-- MODAL KELUAR AKUN -->
     <div id="exit-modal">
         <div class="modal-box">
             <div class="modal-icon"><i class="fas fa-sign-out-alt" style="color: #dc3545;"></i></div>
@@ -311,8 +310,8 @@
                         <p class="value" id="resPilgan" style="color: #0d6efd;">0</p>
                     </div>
                     <div style="border-right: 1px solid #cbd5e1;">
-                        <p class="title">Bonus Esai</p>
-                        <p class="value" id="resEsai" style="color: #f59e0b;">+0</p>
+                        <p class="title">Poin Esai</p>
+                        <p class="value" id="resEsai" style="color: #f59e0b;">0</p>
                     </div>
                     <div>
                         <p class="title">Skor Akhir</p>
@@ -343,7 +342,6 @@
 
         var nisnSiswa = localStorage.getItem('nisnSiswa') || 'N/A';
 
-        // Pengecekan Single Device Session secara berkala (jika login di perangkat lain, perangkat ini otomatis logout)
         setInterval(function() {
             var activeToken = localStorage.getItem('activeDeviceToken_' + nisnSiswa);
             var currentDeviceToken = localStorage.getItem('deviceSessionToken');
@@ -777,9 +775,9 @@
         }
 
         function tampilkanHasilSiswa(nilaiAkhir, nilaiPG, nilaiEsai) {
-            nilaiAkhir = nilaiAkhir || 0;
-            nilaiPG = nilaiPG !== undefined ? nilaiPG : nilaiAkhir;
-            nilaiEsai = nilaiEsai || 0;
+            nilaiAkhir = Math.min(100, parseFloat(nilaiAkhir || 0));
+            nilaiPG = nilaiPG !== undefined ? Math.min(100, parseFloat(nilaiPG)) : nilaiAkhir;
+            nilaiEsai = nilaiEsai !== undefined ? parseFloat(nilaiEsai) : 0;
 
             document.getElementById('main-container').style.display = 'none';
             document.getElementById('result-container').style.display = 'flex';
@@ -787,23 +785,23 @@
             document.getElementById('resNama').innerText = localStorage.getItem('namaSiswa');
             document.getElementById('resNisn').innerText = nisnSiswa;
             
-            document.getElementById('resPilgan').innerText = nilaiPG;
-            document.getElementById('resEsai').innerText = '+' + nilaiEsai;
-            document.getElementById('resNilai').innerText = nilaiAkhir;
+            document.getElementById('resPilgan').innerText = nilaiPG.toFixed(2);
+            document.getElementById('resEsai').innerText = nilaiEsai.toFixed(2);
+            document.getElementById('resNilai').innerText = nilaiAkhir.toFixed(2);
 
             document.getElementById('resStatus').innerHTML = getStatusBadge(nilaiAkhir);
 
-            var sisaPG = 100 - nilaiPG;
-            if (sisaPG < 0) sisaPG = 0;
+            var sisaNilai = 100 - nilaiAkhir;
+            if (sisaNilai < 0) sisaNilai = 0;
 
             var ctx = document.getElementById('studentResultChart').getContext('2d');
             new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Skor Pilgan Diraih', 'Skor Esai Diraih', 'Poin Pilgan Hilang'],
+                    labels: ['Skor Akhir Diraih', 'Sisa Maksimal'],
                     datasets: [{
-                        data: [nilaiPG, nilaiEsai, sisaPG],
-                        backgroundColor: ['#0d6efd', '#f59e0b', '#e2e8f0'],
+                        data: [nilaiAkhir, sisaNilai],
+                        backgroundColor: ['#0d6efd', '#e2e8f0'],
                         borderWidth: 2, borderColor: '#f8fafc'
                     }]
                 },
