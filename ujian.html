@@ -358,7 +358,6 @@
         var namaSiswa = localStorage.getItem('namaSiswa') || 'Siswa';
         var kelasSiswa = localStorage.getItem('kelasSiswa') || 'Kelas';
 
-        // Tampilkan Nama Siswa setelah Login di Overlay Awal dan Header
         document.getElementById('welcomeNamaSiswa').innerText = "Selamat Datang, " + namaSiswa + "!";
         document.getElementById('displayNama').innerText = namaSiswa;
         document.getElementById('displayKelas').innerText = kelasSiswa;
@@ -564,7 +563,14 @@
 
         async function refreshSoalUjian() {
             if (isExamFinished) return;
-            if (!confirm("Ingin menyinkronkan/memuat ulang soal dari server? Jawaban yang sudah tersimpan aman.")) return;
+            
+            // Pastikan layar tetap dalam mode full screen (tidak mengecil/keluar)
+            var elem = document.documentElement;
+            if (elem.requestFullscreen && !document.fullscreenElement) { 
+                elem.requestFullscreen().catch(function(){}); 
+            } else if (elem.webkitRequestFullscreen && !document.webkitFullscreenElement) {
+                elem.webkitRequestFullscreen();
+            }
 
             var formData = new FormData();
             formData.append('action', 'getSoal');
@@ -579,15 +585,10 @@
                         examData = shuffleQuestionsBySeed(rawSoal, nisnSiswa + selectedPaket);
                         generateNumberGrid();
                         renderQuestion(currentQuestionIndex);
-                        alert("Soal berhasil disegarkan/disinkronkan dari server.");
-                    } else {
-                        alert("Data soal kosong.");
                     }
-                } else {
-                    alert("Gagal memuat ulang soal: " + result.message);
                 }
             } catch (err) {
-                alert("Gagal terhubung ke server saat refresh.");
+                console.error("Gagal refresh soal:", err);
             }
         }
 
@@ -848,7 +849,6 @@
                     labels: ['Skor Akhir Diraih', 'Sisa Maksimal'],
                     datasets: [{
                         data: [nilaiAkhir, sisaNilai],
-                        // Mengubah warna sisa poin dari abu-abu (#e2e8f0) menjadi merah (#dc3545)
                         backgroundColor: ['#0d6efd', '#dc3545'],
                         borderWidth: 2, borderColor: '#f8fafc'
                     }]
