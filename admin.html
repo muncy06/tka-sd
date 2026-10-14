@@ -600,7 +600,7 @@
                 var originalIndex = log.indexOf(r);
                 var dateStr = new Date(r.waktu).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
                 
-                var nTotal = Math.min(100, parseFloat(r.nilai_akhir || 0));
+                var nTotal = 0;
                 var nPG = "-";
                 var nEsai = "-";
 
@@ -632,11 +632,25 @@
                                 }
                             });
 
+                            var totalSoalAll = totalPG + totalEsaiCount;
+                            if (totalSoalAll > 0) {
+                                // Konversi proporsional mutlak skala 100 berapapun jumlah soalnya (40, 50, dll)
+                                nTotal = Math.min(100, ((benarPG + totalEsaiScore) / totalSoalAll) * 100);
+                            } else {
+                                nTotal = Math.min(100, parseFloat(r.nilai_akhir || 0));
+                            }
+
                             nPG = totalPG > 0 ? ((benarPG / totalPG) * 100).toFixed(2) : "0";
                             nEsai = totalEsaiCount > 0 ? ((totalEsaiScore / totalEsaiCount) * 100).toFixed(2) : "0";
+                        } else {
+                            nTotal = Math.min(100, parseFloat(r.nilai_akhir || 0));
                         }
+                    } else {
+                        nTotal = Math.min(100, parseFloat(r.nilai_akhir || 0));
                     }
-                } catch(e) { console.error("Gagal parse", e); }
+                } catch(e) { 
+                    nTotal = Math.min(100, parseFloat(r.nilai_akhir || 0)); 
+                }
 
                 totalSumNilai += nTotal;
                 if (nTotal >= 75) countSangatBaik++;
@@ -691,19 +705,14 @@
         function openDetailModal(logIndex) {
             var data = globalDataLog[logIndex];
             if (!data) return;
-            
-            // Mengambil nilai akhir total secara presisi dari database/log tersimpan
-            var nilaiTotal = Math.min(100, parseFloat(data.nilai_akhir || 0)).toFixed(2);
-            
-            document.getElementById('detailHeaderContent').innerHTML = 
-                '<h3><i class="fas fa-user-graduate"></i> ' + data.nama + '</h3>' +
-                '<p><b>NISN:</b> ' + data.nisn + ' &nbsp; | &nbsp; <b>Kelas:</b> ' + data.kelas + '</p>' +
-                '<p><b>Skor Akhir Total:</b> <span style="font-size:18px; font-weight:bold; color:#0d47a1;">' + nilaiTotal + ' Poin</span></p>' +
-                '<p><b>Kategori Passing Grade:</b> ' + getStatusBadge(nilaiTotal) + '</p>';
 
             var jawabanSiswaObj = {};
             try { if (data.raw_answers) jawabanSiswaObj = JSON.parse(data.raw_answers); } catch (e) { console.error(e); }
 
+            var totalBenarPG = 0;
+            var totalSoalPG = 0;
+            var totalEsaiScore = 0;
+            var totalEsaiCount = 0;
             var tbodySoal = '';
 
             if (globalDataSoal.length > 0) {
@@ -717,7 +726,11 @@
                     var warnaJawab = "#333";
 
                     if (isEssay) {
+                        totalEsaiCount++;
                         var persentase = calculateSimilarity(jawabSiswa, kunciAsli);
+                        var poinEsaiSub = (persentase / 100); 
+                        totalEsaiScore += poinEsaiSub;
+
                         if (persentase >= 70) {
                             statusTeks = '<span style="color:#28a745; font-weight:bold;"><i class="fas fa-check-double"></i> ' + persentase + '% Mirip</span>';
                             warnaJawab = '#28a745'; 
@@ -729,7 +742,10 @@
                             warnaJawab = '#dc3545'; 
                         }
                     } else {
+                        totalSoalPG++;
                         var isBenar = (jawabSiswa.toUpperCase() === kunciAsli.toUpperCase());
+                        if (isBenar) totalBenarPG++; 
+                        
                         statusTeks = isBenar ? '<span class="text-benar"><i class="fas fa-check"></i> Benar</span>' : '<span class="text-salah"><i class="fas fa-times"></i> Salah</span>';
                         warnaJawab = isBenar ? '#28a745' : '#dc3545';
                     }
@@ -750,13 +766,21 @@
                 tbodySoal = '<tr><td colspan="5" style="text-align:center;">Data rincian bank soal belum dimuat.</td></tr>';
             }
 
+            var totalSoalAll = totalSoalPG + totalEsaiCount;
+            var nilaiTotalCalc = totalSoalAll > 0 ? Math.min(100, ((totalBenarPG + totalEsaiScore) / totalSoalAll) * 100) : Math.min(100, parseFloat(data.nilai_akhir || 0));
+
+            document.getElementById('detailHeaderContent').innerHTML = 
+                '<h3><i class="fas fa-user-graduate"></i> ' + data.nama + '</h3>' +
+                '<p><b>NISN:</b> ' + data.nisn + ' &nbsp; | &nbsp; <b>Kelas:</b> ' + data.kelas + '</p>' +
+                '<p><b>Skor Akhir Total:</b> <span style="font-size:18px; font-weight:bold; color:#0d47a1;">' + nilaiTotalCalc.toFixed(2) + ' Poin</span></p>' +
+                '<p><b>Kategori Passing Grade:</b> ' + getStatusBadge(nilaiTotalCalc) + '</p>';
+
             document.getElementById('detailSoalBody').innerHTML = tbodySoal;
             
-            var skorFinalCalc = parseFloat(nilaiTotal);
-            var sisaPoinMaksimal = 100 - skorFinalCalc; 
+            var sisaPoinMaksimal = 100 - nilaiTotalCalc; 
             if(sisaPoinMaksimal < 0) sisaPoinMaksimal = 0;
 
-            renderStudentChart(skorFinalCalc, sisaPoinMaksimal);
+            renderStudentChart(nilaiTotalCalc, sisaPoinMaksimal);
             document.getElementById('detailModal').style.display = 'flex';
         }
 
