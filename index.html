@@ -151,7 +151,6 @@
                         localStorage.setItem('kelasSiswa', data.kelas);
                         localStorage.setItem('role', data.role);
                         
-                        // Buat token session device unik untuk validasi single device login
                         const deviceSessionToken = 'session_' + Date.now() + '_' + Math.random().toString(36).substring(2);
                         localStorage.setItem('deviceSessionToken', deviceSessionToken);
                         localStorage.setItem('activeDeviceToken_' + nisn, deviceSessionToken);
