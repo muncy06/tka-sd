@@ -66,9 +66,17 @@
         .header-right { 
             background: rgba(255,255,255,0.12); padding: 8px 20px; border-radius: 10px;
             text-align: right; border: 1px solid rgba(255,255,255,0.2);
+            display: flex; align-items: center; gap: 12px;
         }
         .header-right .nama { font-weight: 700; font-size: 18px; text-transform: uppercase; }
         .header-right .kelas { font-size: 13px; color: #90caf9; font-weight: 500; }
+        
+        .btn-refresh-soal {
+            background: #17a2b8; color: white; border: none; padding: 6px 12px;
+            border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .btn-refresh-soal:hover { background: #138496; }
 
         .main-wrapper { flex: 1; display: flex; justify-content: center; align-items: center; padding: 15px; overflow: hidden; }
         .container { display: flex; gap: 20px; width: 100%; max-width: 1400px; height: 100%; }
@@ -249,8 +257,13 @@
             </div>
         </div>
         <div class="header-right">
-            <div class="nama" id="displayNama">MEMUAT NAMA...</div>
-            <div class="kelas" id="displayKelas">Memuat Kelas...</div>
+            <div>
+                <div class="nama" id="displayNama">MEMUAT NAMA...</div>
+                <div class="kelas" id="displayKelas">Memuat Kelas...</div>
+            </div>
+            <button class="btn-refresh-soal" onclick="refreshSoalUjian()" title="Refresh / Muat Ulang Soal">
+                <i class="fas fa-sync-alt"></i> Refresh Soal
+            </button>
         </div>
     </div>
 
@@ -542,6 +555,36 @@
             generateNumberGrid();
             renderQuestion(0);
             sendLiveProgress();
+        }
+
+        // Fungsi Tombol Refresh Soal di Halaman Ujian Siswa
+        async function refreshSoalUjian() {
+            if (isExamFinished) return;
+            if (!confirm("Ingin menyinkronkan/memuat ulang soal dari server? Jawaban yang sudah tersimpan aman.")) return;
+
+            var formData = new FormData();
+            formData.append('action', 'getSoal');
+            formData.append('paket', selectedPaket);
+
+            try {
+                var response = await fetch(scriptURL, { method: 'POST', body: formData });
+                var result = await response.json();
+                if (result.status === 'success') {
+                    var rawSoal = result.data;
+                    if (rawSoal && rawSoal.length > 0) {
+                        examData = shuffleQuestionsBySeed(rawSoal, nisnSiswa + selectedPaket);
+                        generateNumberGrid();
+                        renderQuestion(currentQuestionIndex);
+                        alert("Soal berhasil disegarkan/disinkronkan dari server.");
+                    } else {
+                        alert("Data soal kosong.");
+                    }
+                } else {
+                    alert("Gagal memuat ulang soal: " + result.message);
+                }
+            } catch (err) {
+                alert("Gagal terhubung ke server saat refresh.");
+            }
         }
 
         function returnToFullscreen() {
