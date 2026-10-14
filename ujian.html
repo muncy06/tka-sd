@@ -174,7 +174,8 @@
 
     <div id="start-overlay" class="full-overlay">
         <div class="card">
-            <h2 style="margin-bottom: 10px; color: #0d47a1; font-size: 28px;"><i class="fas fa-desktop"></i> Ujian TKA</h2>
+            <h2 style="margin-bottom: 5px; color: #0d47a1; font-size: 26px;"><i class="fas fa-desktop"></i> Ujian TKA</h2>
+            <h3 id="welcomeNamaSiswa" style="color: #1e293b; font-size: 18px; font-weight: 600; margin-bottom: 15px;">Selamat Datang!</h3>
             <p style="color: #64748b; font-size: 15px; margin-bottom: 25px; line-height: 1.6;">
                 Pastikan perangkat Anda stabil.<br>
                 Sistem akan memantau aktivitas ujian secara penuh. Dilarang berpindah aplikasi atau membuka tab lain.
@@ -354,6 +355,13 @@
         }
 
         var nisnSiswa = localStorage.getItem('nisnSiswa') || 'N/A';
+        var namaSiswa = localStorage.getItem('namaSiswa') || 'Siswa';
+        var kelasSiswa = localStorage.getItem('kelasSiswa') || 'Kelas';
+
+        // Tampilkan Nama Siswa setelah Login di Overlay Awal dan Header
+        document.getElementById('welcomeNamaSiswa').innerText = "Selamat Datang, " + namaSiswa + "!";
+        document.getElementById('displayNama').innerText = namaSiswa;
+        document.getElementById('displayKelas').innerText = kelasSiswa;
 
         setInterval(function() {
             var activeToken = localStorage.getItem('activeDeviceToken_' + nisnSiswa);
@@ -364,9 +372,6 @@
                 window.location.href = 'index.html';
             }
         }, 4000);
-
-        document.getElementById('displayNama').innerText = localStorage.getItem('namaSiswa') || 'NAMA SISWA';
-        document.getElementById('displayKelas').innerText = localStorage.getItem('kelasSiswa') || 'Kelas';
 
         var currentQuestionIndex = 0;
         var examData = []; 
@@ -493,7 +498,7 @@
                         btnBegin.innerHTML = '<i class="fas fa-play"></i> Mulai Kerjakan Paket Ini';
                         btnBegin.style.background = '#10b981';
                     } else {
-                        statusEl.innerHTML = '<span style="color:#ef4444; font-weight:bold;"><i class="fas fa-lock"></i> Status: TERKUNCI / DITUTUP oleh Admin</span>';
+                        statusEl.innerHTML = '<span style="color:#ef4444; font-weight:bold;"><i class="fas fa-lock"></i> Status: TERKUNCI</span>';
                         btnBegin.disabled = true;
                         btnBegin.innerHTML = '<i class="fas fa-lock"></i> Paket Terkunci';
                         btnBegin.style.background = '#64748b';
@@ -557,7 +562,6 @@
             sendLiveProgress();
         }
 
-        // Fungsi Tombol Refresh Soal di Halaman Ujian Siswa
         async function refreshSoalUjian() {
             if (isExamFinished) return;
             if (!confirm("Ingin menyinkronkan/memuat ulang soal dari server? Jawaban yang sudah tersimpan aman.")) return;
@@ -844,7 +848,8 @@
                     labels: ['Skor Akhir Diraih', 'Sisa Maksimal'],
                     datasets: [{
                         data: [nilaiAkhir, sisaNilai],
-                        backgroundColor: ['#0d6efd', '#e2e8f0'],
+                        // Mengubah warna sisa poin dari abu-abu (#e2e8f0) menjadi merah (#dc3545)
+                        backgroundColor: ['#0d6efd', '#dc3545'],
                         borderWidth: 2, borderColor: '#f8fafc'
                     }]
                 },
